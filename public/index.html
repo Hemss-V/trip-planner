@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roamly — Discover Handcrafted Indian Tour Packages & Destinations</title>
+  <meta name="description"
+    content="Discover breathtaking destinations, curated day-by-day itineraries, and authentic local tour packages across India. Find your next unforgettable journey with Roamly.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+</head>
+
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="index.html" class="brand-logo" id="nav-brand">
+        <div class="brand-icon">🧭</div>
+        <span>Roamly</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link active">Home</a></li>
+          <li><a href="destinations.html" class="nav-link">Destinations</a></li>
+          <li><a href="packages.html" class="nav-link">Explore Packages</a></li>
+          <li><a href="#experiences" class="nav-link">Experiences</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="#packages" class="btn btn-primary btn-sm" id="nav-explore-btn">Explore Trips</a>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Navigation Menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-content">
+          <span class="hero-tag">✨ Local Tourism Discovery</span>
+          <h1 class="hero-title">Find your next unforgettable escape.</h1>
+          <p class="hero-subtitle">
+            Handcrafted local journeys, royal heritage trails, and immersive day-by-day itineraries across the wonders
+            of India.
+          </p>
+
+          <!-- Search Box -->
+          <div class="hero-search-wrapper">
+            <form class="hero-search-form" id="hero-search-form">
+              <div class="search-field" style="flex: 2;">
+                <span class="search-field-icon">🔍</span>
+                <input type="text" id="hero-search-input" placeholder="Search destinations, palaces, backwaters..."
+                  autocomplete="off">
+              </div>
+              <div class="search-field" style="flex: 1.2;">
+                <span class="search-field-icon">🏷️</span>
+                <select id="hero-category-select">
+                  <option value="">All Categories</option>
+                  <!-- Populated from DB via API -->
+                </select>
+              </div>
+              <button type="submit" class="btn btn-terracotta" id="hero-submit-btn">
+                Search Trips
+              </button>
+            </form>
+          </div>
+
+          <!-- Quick Search Chips -->
+          <div class="hero-chips">
+            <span class="chip-label">Popular searches:</span>
+            <button class="chip" data-type="search" data-query="Kerala">Kerala Backwaters</button>
+            <button class="chip" data-type="search" data-query="Rajasthan">Royal Rajasthan</button>
+            <button class="chip" data-type="search" data-query="Goa">Goan Coastline</button>
+            <button class="chip" data-type="search" data-query="Manali">Himachal Valleys</button>
+            <button class="chip" data-type="search" data-query="Ladakh">Ladakh High Passes</button>
+            <button class="chip" data-type="search" data-query="Varanasi">Sacred Varanasi</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Value Highlights Section -->
+    <section style="padding: 3rem 0; background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle);">
+      <div class="container">
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; text-align: center;">
+          <div style="padding: 1rem;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌿</div>
+            <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">Curated Local Guides</h4>
+            <p style="font-size: 0.88rem; color: var(--text-secondary);">Verified regional tour operators who know every
+              hidden valley and historic street.</p>
+          </div>
+          <div style="padding: 1rem;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🗺️</div>
+            <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">Day-by-Day Itineraries</h4>
+            <p style="font-size: 0.88rem; color: var(--text-secondary);">Transparent daily schedules detailing every
+              scenic drive, trek, and cultural highlight.</p>
+          </div>
+          <div style="padding: 1rem;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💎</div>
+            <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">Transparent Pricing</h4>
+            <p style="font-size: 0.88rem; color: var(--text-secondary);">Direct quotes in Indian Rupees with upfront
+              accommodation and transport details.</p>
+          </div>
+          <div style="padding: 1rem;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📅</div>
+            <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">Guaranteed Departures</h4>
+            <p style="font-size: 0.88rem; color: var(--text-secondary);">Live availability tracking and seat capacity
+              for smooth group planning.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Popular Destinations Section -->
+    <section class="destinations-section" id="destinations">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Iconic Escapes</span>
+          <h2 class="section-title">Popular Destinations</h2>
+          <p class="section-subtitle">
+            Explore authentic Indian regions celebrated for rich architectural heritage, tranquil backwaters, and
+            pristine peaks.
+          </p>
+        </div>
+
+        <!-- Grid dynamically populated from MySQL via API -->
+        <div class="destinations-grid" id="destinations-grid">
+          <!-- Skeletons rendered by app.js on load -->
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+          <a href="destinations.html" class="btn btn-outline" id="view-all-destinations-btn">
+            View All Destinations →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Explore Tour Packages Section -->
+    <section class="packages-section" id="packages">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Handcrafted Itineraries</span>
+          <h2 class="section-title">Explore Tour Packages</h2>
+          <p class="section-subtitle">
+            Filter by destination, theme, price, and duration to discover the ideal package for your upcoming holiday.
+          </p>
+        </div>
+
+        <!-- Comprehensive Filter Bar -->
+        <div class="filter-bar">
+          <div class="filter-grid">
+            <!-- Keyword Search -->
+            <div class="filter-group">
+              <label for="filter-search" class="filter-label">Keyword Search</label>
+              <input type="text" id="filter-search" class="filter-control" placeholder="Search title or place...">
+            </div>
+
+            <!-- Destination Select -->
+            <div class="filter-group">
+              <label for="filter-destination" class="filter-label">Destination</label>
+              <select id="filter-destination" class="filter-control">
+                <option value="">All Destinations</option>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+
+            <!-- Category Select -->
+            <div class="filter-group">
+              <label for="filter-category" class="filter-label">Category</label>
+              <select id="filter-category" class="filter-control">
+                <option value="">All Categories</option>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+
+            <!-- Price Range -->
+            <div class="filter-group">
+              <label class="filter-label">Price Range (₹)</label>
+              <div class="filter-range-inputs">
+                <input type="number" id="filter-min-price" placeholder="Min ₹" min="0" step="500">
+                <span>–</span>
+                <input type="number" id="filter-max-price" placeholder="Max ₹" min="0" step="500">
+              </div>
+            </div>
+
+            <!-- Duration Select -->
+            <div class="filter-group">
+              <label for="filter-duration" class="filter-label">Duration</label>
+              <select id="filter-duration" class="filter-control">
+                <option value="">Any Duration</option>
+                <option value="1-3">Short (1–3 Days)</option>
+                <option value="4-5">Medium (4–5 Days)</option>
+                <option value="6+">Long (6+ Days)</option>
+              </select>
+            </div>
+
+            <!-- Departure Date -->
+            <div class="filter-group">
+              <label for="filter-date" class="filter-label">Available Date</label>
+              <input type="date" id="filter-date" class="filter-control">
+            </div>
+
+            <!-- Sort By -->
+            <div class="filter-group">
+              <label for="filter-sort" class="filter-label">Sort By</label>
+              <select id="filter-sort" class="filter-control">
+                <option value="recommended">Recommended</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+                <option value="duration_asc">Duration: Shortest First</option>
+                <option value="duration_desc">Duration: Longest First</option>
+              </select>
+            </div>
+
+            <!-- Reset Button -->
+            <div class="filter-actions">
+              <button type="button" class="btn btn-outline btn-sm" id="filter-reset-btn" style="width: 100%;">
+                Reset Filters
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Summary & Tags -->
+        <div class="filter-summary">
+          <div class="results-count" id="results-count">
+            Loading tour packages...
+          </div>
+          <div class="active-filter-tags" id="active-filters">
+            <!-- Active filter chips appended dynamically -->
+          </div>
+        </div>
+
+        <!-- Tour Packages Grid -->
+        <div class="packages-grid" id="packages-grid">
+          <!-- Skeletons & cards rendered by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Experiences & Story Section -->
+    <section style="padding: 5rem 0; background: var(--bg-primary);" id="experiences">
+      <div class="container">
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 3.5rem; align-items: center;">
+          <div>
+            <span class="section-tag">About Roamly</span>
+            <h2 style="margin-bottom: 1rem;">Traveling with depth, soul, and respect for heritage.</h2>
+            <p class="lead" style="margin-bottom: 1.25rem;">
+              Roamly was created to connect curious travelers with authentic regional experiences across India, moving
+              past cookie-cutter itineraries to spotlight local stories and licensed operators.
+            </p>
+            <p style="color: var(--text-secondary); margin-bottom: 1.75rem; line-height: 1.65;">
+              Whether relaxing aboard an artisanal houseboat on Vembanad Lake, gazing at star-strewn desert skies above
+              Jaisalmer's golden dunes, or listening to dusk chimes echoing across the holy Ganges, each journey is
+              structured with care.
+            </p>
+            <div style="display: flex; gap: 1.5rem;">
+              <div style="border-left: 3px solid var(--terracotta); padding-left: 1rem;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">100%</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Verified Packages</div>
+              </div>
+              <div style="border-left: 3px solid var(--sage); padding-left: 1rem;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">24/7</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Local Partner Support</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div
+              style="border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); height: 420px;">
+              <img src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=80"
+                alt="Taj Mahal and Indian Heritage" style="width: 100%; height: 100%; object-fit: cover;"
+                onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80'">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Interactive Package Details Modal / Drawer -->
+  <div class="modal-overlay" id="package-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <button class="modal-close-btn" id="modal-close-btn" aria-label="Close Package Details Modal">✕</button>
+      <div id="modal-body">
+        <!-- Rendered dynamically via app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="brand-logo" style="color: #fff;">
+            <div class="brand-icon">🧭</div>
+            <span>Roamly</span>
+          </a>
+          <p>
+            Local Tourism Package Booking System. Connecting travelers with authentic local cultures, heritage trails,
+            and unforgettable journeys across India.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Destinations</h4>
+          <ul class="footer-links">
+            <li><a href="destinations.html">Kerala Backwaters</a></li>
+            <li><a href="destinations.html">Royal Rajasthan</a></li>
+            <li><a href="destinations.html">Goan Coastline</a></li>
+            <li><a href="destinations.html">Himachal Pradesh</a></li>
+            <li><a href="destinations.html">Ladakh High Passes</a></li>
+            <li><a href="destinations.html">Varanasi Sacred Ghats</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Discovery & Modules</h4>
+          <ul class="footer-links">
+            <li><a href="packages.html">Explore Tour Packages</a></li>
+            <li><a href="destinations.html">Regional Destinations</a></li>
+            <li><a href="#packages">Day-by-Day Itineraries</a></li>
+            <li><a href="packages.html?category=1">Heritage & Culture</a></li>
+            <li><a href="packages.html?category=4">Adventure & Treks</a></li>
+          </ul>
+        </div>
+
+
+
+
+
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

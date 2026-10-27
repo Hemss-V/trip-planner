@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tour Package Details — Roamly</title>
+  <meta name="description" content="View complete package itinerary, departure dates, pricing, and destination details on Roamly.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="index.html" class="brand-logo">
+        <div class="brand-icon">🧭</div>
+        <span>Roamly</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="destinations.html" class="nav-link">Destinations</a></li>
+          <li><a href="packages.html" class="nav-link active">Explore Packages</a></li>
+          <li><a href="index.html#experiences" class="nav-link">Experiences</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="packages.html" class="btn btn-outline btn-sm">← Back to Packages</a>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="package-detail-container">
+    <div class="container">
+      <!-- Breadcrumbs -->
+      <div style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 2rem;">
+        <a href="index.html" style="color: var(--primary);">Home</a> &gt; 
+        <a href="packages.html" style="color: var(--primary);">Tour Packages</a> &gt; 
+        <span id="breadcrumb-package-title">Package Details</span>
+      </div>
+
+      <!-- Main Container loaded dynamically by js/package-details.js -->
+      <div id="package-detail-content">
+        <div style="padding: 4rem 1rem; text-align: center;">
+          <div class="skeleton skeleton-line lg" style="margin: 0 auto 1.5rem auto;"></div>
+          <div class="skeleton skeleton-line" style="margin: 0 auto 1rem auto; width: 60%;"></div>
+          <p style="color: var(--text-muted);">Loading full tour package details & itinerary...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border: none; padding-top: 0;">
+        <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System — Member 2.</div>
+        <div><a href="packages.html" style="color: #fff;">Explore All Packages</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/package-details.js"></script>
+</body>
+</html>

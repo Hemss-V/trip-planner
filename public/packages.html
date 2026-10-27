@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tour Packages — Roamly Tourism Discovery</title>
+  <meta name="description" content="Discover and filter handpicked Indian tour packages. Compare prices, explore day-by-day itineraries, and check departure availability.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="index.html" class="brand-logo">
+        <div class="brand-icon">🧭</div>
+        <span>Roamly</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="destinations.html" class="nav-link">Destinations</a></li>
+          <li><a href="packages.html" class="nav-link active">Explore Packages</a></li>
+          <li><a href="index.html#experiences" class="nav-link">Experiences</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="packages.html" class="btn btn-primary btn-sm">Explore Trips</a>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding: 3.5rem 0 5rem;">
+    <div class="container">
+      <!-- Breadcrumbs -->
+      <div style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 2rem;">
+        <a href="index.html" style="color: var(--primary);">Home</a> &gt; <span>Tour Packages</span>
+      </div>
+
+      <div class="section-header" style="text-align: left; max-width: 800px; margin-bottom: 2.5rem;">
+        <span class="section-tag">Tour Discovery</span>
+        <h1 class="section-title">All Curated Tour Packages</h1>
+        <p class="section-subtitle">
+          Search, filter, and compare verified local travel packages across heritage, backwaters, mountain treks, and coastal escapes.
+        </p>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="filter-grid">
+          <div class="filter-group">
+            <label for="filter-search" class="filter-label">Keyword Search</label>
+            <input type="text" id="filter-search" class="filter-control" placeholder="Search title or place...">
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-destination" class="filter-label">Destination</label>
+            <select id="filter-destination" class="filter-control">
+              <option value="">All Destinations</option>
+              <!-- Populated via API -->
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-category" class="filter-label">Category</label>
+            <select id="filter-category" class="filter-control">
+              <option value="">All Categories</option>
+              <!-- Populated via API -->
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Price Range (₹)</label>
+            <div class="filter-range-inputs">
+              <input type="number" id="filter-min-price" placeholder="Min ₹" min="0" step="500">
+              <span>–</span>
+              <input type="number" id="filter-max-price" placeholder="Max ₹" min="0" step="500">
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-duration" class="filter-label">Duration</label>
+            <select id="filter-duration" class="filter-control">
+              <option value="">Any Duration</option>
+              <option value="1-3">Short (1–3 Days)</option>
+              <option value="4-5">Medium (4–5 Days)</option>
+              <option value="6+">Long (6+ Days)</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-date" class="filter-label">Available Date</label>
+            <input type="date" id="filter-date" class="filter-control">
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-sort" class="filter-label">Sort By</label>
+            <select id="filter-sort" class="filter-control">
+              <option value="recommended">Recommended</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="duration_asc">Duration: Shortest First</option>
+              <option value="duration_desc">Duration: Longest First</option>
+            </select>
+          </div>
+
+          <div class="filter-actions">
+            <button type="button" class="btn btn-outline btn-sm" id="filter-reset-btn" style="width: 100%;">
+              Reset Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Summary & Tags -->
+      <div class="filter-summary">
+        <div class="results-count" id="results-count">
+          Loading tour packages...
+        </div>
+        <div class="active-filter-tags" id="active-filters">
+          <!-- Active filter chips -->
+        </div>
+      </div>
+
+      <!-- Packages Grid -->
+      <div class="packages-grid" id="packages-page-grid">
+        <!-- Rendered by js/packages.js -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Interactive Package Details Modal -->
+  <div class="modal-overlay" id="package-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <button class="modal-close-btn" id="modal-close-btn" aria-label="Close Package Details Modal">✕</button>
+      <div id="modal-body">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border: none; padding-top: 0;">
+        <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System — Member 2.</div>
+        <div><a href="index.html" style="color: #fff;">Back to Home</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/packages.js"></script>
+</body>
+</html>

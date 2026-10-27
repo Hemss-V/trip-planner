@@ -1,0 +1,23 @@
+{
+  "name": "local-tourism-package-booking-system",
+  "version": "1.0.0",
+  "description": "Local Tourism Package Booking System - Member 2 Module: Destinations & Package Discovery",
+  "main": "server/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/server.js",
+    "seed": "node server/seed.js"
+  },
+  "keywords": [
+    "tourism",
+    "travel",
+    "booking",
+    "discovery"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "mysql2": "^3.24.6"
+  }
+}
