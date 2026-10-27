@@ -358,6 +358,15 @@ p.lead {
   border-radius: var(--radius-sm);
 }
 
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+
 /* ==========================================
    Hero Section
    ========================================== */
@@ -1350,6 +1359,199 @@ select.filter-control {
 .booking-handoff-text p {
   font-size: 0.88rem;
   color: var(--text-secondary);
+}
+
+/* ==========================================
+   Auth: Registration & Login
+   ========================================== */
+.auth-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem 4rem;
+}
+
+.auth-card {
+  background: var(--bg-surface);
+  width: 100%;
+  max-width: 520px;
+  padding: 2.4rem 2.2rem 2.2rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-card);
+  box-shadow: var(--shadow-md);
+}
+
+.auth-card-header {
+  margin-bottom: 1.75rem;
+}
+
+.auth-card-header .section-tag {
+  margin-bottom: 0.7rem;
+}
+
+.auth-card-header h1 {
+  font-size: clamp(1.7rem, 2vw + 1rem, 2.15rem);
+  margin-bottom: 0.45rem;
+}
+
+.auth-card-header p {
+  color: var(--text-secondary);
+  font-size: 0.96rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-label {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 0.78rem 0.95rem;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(24, 59, 43, 0.12);
+}
+
+.form-input.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 3px rgba(200, 99, 67, 0.12);
+}
+
+.form-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.field-error {
+  min-height: 1.05rem;
+  font-size: 0.78rem;
+  color: var(--terracotta);
+}
+
+.account-type-fieldset {
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 0.9rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.account-type-fieldset legend {
+  font-size: 0.86rem;
+  font-weight: 600;
+  padding: 0 0.35rem;
+}
+
+.account-type-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--bg-surface-soft);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.account-type-option:hover,
+.account-type-option:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+}
+
+.account-type-option input {
+  margin-top: 0.2rem;
+  accent-color: var(--primary);
+}
+
+.account-type-option strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--primary);
+}
+
+.account-type-option span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.form-alert {
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.form-alert.is-error {
+  background: #FDF3F2;
+  border: 1px solid #F5C6CB;
+  color: #721C24;
+}
+
+.form-alert.is-success {
+  background: var(--primary-subtle);
+  border: 1px solid var(--sage-light);
+  color: var(--primary);
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.auth-switch {
+  text-align: center;
+  margin-top: 1.35rem;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+.auth-switch a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.auth-switch a:hover {
+  color: var(--terracotta);
+}
+
+@media (max-width: 600px) {
+  .account-type-fieldset {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-card {
+    padding: 1.75rem 1.25rem;
+  }
 }
 
 /* ==========================================

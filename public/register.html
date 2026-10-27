@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Account — Roamly</title>
+  <meta name="description" content="Create a Roamly account to book handcrafted local tour packages across India, or register as a tour provider.">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
 </head>
-<body style="min-height: 100vh; display: flex; flex-direction: column;">
+<body>
 
   <header class="site-header">
     <div class="container nav-container">
@@ -15,23 +16,82 @@
         <div class="brand-icon">🧭</div>
         <span>Roamly</span>
       </a>
-      <a href="index.html" class="btn btn-outline btn-sm">← Back to Discovery</a>
+      <div class="nav-actions">
+        <a href="login.html" class="btn btn-outline btn-sm">Sign in</a>
+        <a href="index.html" class="btn btn-primary btn-sm">← Discovery</a>
+      </div>
     </div>
   </header>
 
-  <main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 3rem 1rem;">
-    <div style="background: var(--bg-surface); max-width: 440px; width: 100%; padding: 2.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-card); box-shadow: var(--shadow-md); text-align: center;">
-      <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📝</div>
-      <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;">Member 1 Registration</h1>
-      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">
-        Customer and tour provider registration and password hashing are assigned to <strong>Member 1</strong> in our group project.
-      </p>
-      <div style="background: var(--bg-surface-soft); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-        Member 2 (Destinations & Package Discovery) is complete and operational.
+  <main class="auth-main">
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <span class="section-tag">Join Roamly</span>
+        <h1>Create your account</h1>
+        <p>Register as a traveler to book packages, or as a tour provider to list regional journeys. Admin roles cannot be created here.</p>
       </div>
-      <a href="index.html" class="btn btn-primary" style="width: 100%;">
-        Return to Tour Discovery
-      </a>
+
+      <form id="register-form" class="auth-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="fullName">Full name</label>
+          <input class="form-input" type="text" id="fullName" name="fullName" autocomplete="name" maxlength="100" required>
+          <p class="field-error" id="fullName-error" role="alert"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email address</label>
+          <input class="form-input" type="email" id="email" name="email" autocomplete="email" maxlength="150" required>
+          <p class="field-error" id="email-error" role="alert"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone">Phone number</label>
+          <input class="form-input" type="tel" id="phone" name="phone" autocomplete="tel" maxlength="20" placeholder="10-digit Indian mobile" required>
+          <p class="field-error" id="phone-error" role="alert"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input class="form-input" type="password" id="password" name="password" autocomplete="new-password" minlength="8" required>
+          <p class="form-hint">At least 8 characters, with uppercase, lowercase, and a number.</p>
+          <p class="field-error" id="password-error" role="alert"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">Confirm password</label>
+          <input class="form-input" type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" minlength="8" required>
+          <p class="field-error" id="confirmPassword-error" role="alert"></p>
+        </div>
+
+        <fieldset class="account-type-fieldset">
+          <legend>Account type</legend>
+          <label class="account-type-option">
+            <input type="radio" name="accountType" value="CUSTOMER" checked>
+            <span>
+              <strong>Traveler</strong>
+              <span>Book local packages and itineraries.</span>
+            </span>
+          </label>
+          <label class="account-type-option">
+            <input type="radio" name="accountType" value="PROVIDER">
+            <span>
+              <strong>Tour provider</strong>
+              <span>List and manage regional tour packages.</span>
+            </span>
+          </label>
+        </fieldset>
+        <p class="field-error" id="accountType-error" role="alert"></p>
+
+        <div id="form-alert" class="form-alert" hidden></div>
+
+        <button type="submit" class="btn btn-primary auth-submit" id="register-submit">
+          Create account
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        Already have an account? <a href="login.html">Sign in</a>
+      </p>
     </div>
   </main>
 
@@ -41,5 +101,6 @@
     </div>
   </footer>
 
+  <script src="js/register.js"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@ const http = require('http');
 const url = require('url');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { pool, testConnection } = require('./config/db');
 
 const PORT = parseInt(process.env.PORT, 10) || 3000;
@@ -51,6 +52,40 @@ function sendError(res, statusCode, message) {
     success: false,
     message: message || 'An unexpected error occurred.'
   });
+}
+
+/**
+ * Read a JSON request body (used by auth POST routes)
+ */
+function readJSONBody(req, maxBytes = 1e6) {
+  return new Promise((resolve, reject) => {
+    let raw = '';
+    req.on('data', (chunk) => {
+      raw += chunk;
+      if (Buffer.byteLength(raw) > maxBytes) {
+        reject(new Error('PAYLOAD_TOO_LARGE'));
+        req.destroy();
+      }
+    });
+    req.on('end', () => {
+      if (!raw) {
+        resolve({});
+        return;
+      }
+      try {
+        resolve(JSON.parse(raw));
+      } catch (err) {
+        reject(new Error('INVALID_JSON'));
+      }
+    });
+    req.on('error', reject);
+  });
+}
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `scrypt:${salt}:${hash}`;
 }
 
 /**
@@ -120,6 +155,88 @@ function serveStaticFile(req, res, pathname) {
 // ==========================================
 // REST API Handlers
 // ==========================================
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^(?:\+91[\s-]?)?[6-9]\d{9}$/;
+const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+const PUBLIC_ROLES = new Set(['CUSTOMER', 'PROVIDER']);
+
+/**
+ * POST /api/auth/register
+ * Public customer / provider registration. Admin roles are rejected.
+ */
+async function handleRegister(req, res) {
+  let body;
+  try {
+    body = await readJSONBody(req);
+  } catch (err) {
+    if (err.message === 'PAYLOAD_TOO_LARGE') {
+      sendError(res, 413, 'Request body is too large.');
+      return;
+    }
+    sendError(res, 400, 'Invalid JSON in request body.');
+    return;
+  }
+
+  const name = String(body.name || body.fullName || '').trim();
+  const email = String(body.email || '').trim().toLowerCase();
+  const phone = String(body.phone || body.mobile || '').trim().replace(/\s+/g, '');
+  const password = String(body.password || '');
+  const role = String(body.role || body.accountType || 'CUSTOMER').trim().toUpperCase();
+
+  if (!name || name.length < 2) {
+    sendError(res, 400, 'Full name is required.');
+    return;
+  }
+  if (!EMAIL_PATTERN.test(email)) {
+    sendError(res, 400, 'Enter a valid email address.');
+    return;
+  }
+  if (!PHONE_PATTERN.test(phone)) {
+    sendError(res, 400, 'Enter a valid 10-digit Indian mobile number.');
+    return;
+  }
+  if (!PASSWORD_PATTERN.test(password)) {
+    sendError(res, 400, 'Password must be at least 8 characters and include uppercase, lowercase, and a number.');
+    return;
+  }
+  if (!PUBLIC_ROLES.has(role)) {
+    sendError(res, 403, 'Admin and superadmin accounts cannot be created through public registration.');
+    return;
+  }
+
+  const status = role === 'PROVIDER' ? 'PENDING' : 'ACTIVE';
+
+  try {
+    const [result] = await pool.query(
+      `INSERT INTO users (name, email, password, mobile, role, status)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [name, email, hashPassword(password), phone, role, status]
+    );
+
+    sendJSON(res, 201, {
+      success: true,
+      message: role === 'PROVIDER'
+        ? 'Provider account created and is pending review. You can sign in after approval.'
+        : 'Account created successfully. Redirecting to sign in…',
+      data: {
+        user_id: result.insertId,
+        name,
+        email,
+        role,
+        status
+      }
+    });
+  } catch (err) {
+    if (err && err.code === 'ER_DUP_ENTRY') {
+      sendError(res, 409, 'An account with this email already exists.');
+      return;
+    }
+    console.error('Error registering user:', err.message);
+    sendError(res, 500, 'Unable to create your account right now.');
+  }
+}
+
 
 /**
  * GET /api/destinations
@@ -532,6 +649,11 @@ const server = http.createServer(async (req, res) => {
 
   // REST API Routes
   if (pathname.startsWith('/api/')) {
+    if (pathname === '/api/auth/register' && req.method === 'POST') {
+      await handleRegister(req, res);
+      return;
+    }
+
     if (req.method !== 'GET') {
       sendError(res, 405, 'Method Not Allowed');
       return;
