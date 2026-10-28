@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Dashboard — Roamly Local Tourism</title>
+  <meta name="description" content="Local Tourism Package Booking System - Provider Portal and Package Administration.">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="../index.html" class="brand-logo">
+        <div class="brand-icon">🧭</div>
+        <span>Roamly <span style="font-size: 0.8rem; font-family: var(--font-sans); color: var(--sage-dark); font-weight: 600; text-transform: uppercase; margin-left: 0.2rem;">Provider</span></span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="dashboard.html" class="active" style="color: var(--primary); font-weight: 700;">Dashboard</a>
+        <a href="../packages.html">Explore Catalog</a>
+        <a href="../destinations.html">Destinations</a>
+        <a href="../index.html">Traveler View</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button type="button" class="btn btn-primary btn-sm" id="btn-open-create-modal">
+          <span>+</span> Create Package
+        </button>
+        <a href="../login.html" class="btn btn-outline btn-sm">Sign Out</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Content -->
+  <main class="provider-portal-container">
+    <div class="container">
+
+      <!-- Provider Header & Account Switcher -->
+      <div class="provider-topbar">
+        <div class="provider-brand-heading">
+          <div class="provider-portal-tag">
+            <span>🛡️</span> Member 3 — Provider Portal & Package Administration
+          </div>
+          <h1 class="provider-portal-title">Tour Provider Dashboard</h1>
+          <p class="provider-portal-subtitle">
+            Manage your regional tour packages, track administrative approvals, and schedule departure dates.
+          </p>
+        </div>
+
+        <!-- Authenticated Provider Panel with Quick Switcher for Easy Evaluation -->
+        <div class="provider-account-panel">
+          <div class="provider-avatar-circle" id="provider-avatar">R</div>
+          <div class="provider-identity-meta">
+            <div class="provider-identity-name" id="provider-name">Royal Heritage Journeys</div>
+            <div class="provider-identity-role">
+              <span id="provider-email">heritage@roamly.in</span>
+              <span>•</span>
+              <span style="color: #2E7D32; font-weight: 700;">Verified Provider</span>
+            </div>
+          </div>
+          <div style="border-left: 1px solid var(--border-card); padding-left: 0.75rem; margin-left: 0.25rem;">
+            <label for="provider-select" style="display: block; font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem;">
+              Switch Account:
+            </label>
+            <select id="provider-select" class="provider-switch-select" title="Switch provider account for testing">
+              <option value="1">Royal Heritage Journeys</option>
+              <option value="2">Wanderlust India Expeditions</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Stat Metric Cards -->
+      <section class="provider-stats-grid" aria-label="Provider Overview Statistics">
+        
+        <!-- Card 1: Total Packages -->
+        <div class="provider-stat-card stat-card-total">
+          <div class="stat-card-top">
+            <span class="stat-card-label">Total Packages</span>
+            <div class="stat-card-icon">📦</div>
+          </div>
+          <div class="stat-card-value" id="stat-total">0</div>
+          <div class="stat-card-caption">All packages created by your organization</div>
+        </div>
+
+        <!-- Card 2: Published / Approved Packages -->
+        <div class="provider-stat-card stat-card-approved">
+          <div class="stat-card-top">
+            <span class="stat-card-label">Published / Approved</span>
+            <div class="stat-card-icon">✅</div>
+          </div>
+          <div class="stat-card-value" id="stat-approved">0</div>
+          <div class="stat-card-caption">Live & visible in public travel discovery</div>
+        </div>
+
+        <!-- Card 3: Pending Approval -->
+        <div class="provider-stat-card stat-card-pending">
+          <div class="stat-card-top">
+            <span class="stat-card-label">Pending Approval</span>
+            <div class="stat-card-icon">⏳</div>
+          </div>
+          <div class="stat-card-value" id="stat-pending">0</div>
+          <div class="stat-card-caption">Under review by system administrators</div>
+        </div>
+
+        <!-- Card 4: Rejected / Inactive Packages -->
+        <div class="provider-stat-card stat-card-other">
+          <div class="stat-card-top">
+            <span class="stat-card-label">Rejected / Inactive</span>
+            <div class="stat-card-icon">🚫</div>
+          </div>
+          <div class="stat-card-value" id="stat-other">0</div>
+          <div class="stat-card-caption">Drafts, paused trips, or revisions required</div>
+        </div>
+
+      </section>
+
+      <!-- Packages Management Section -->
+      <section class="provider-content-card">
+        
+        <!-- Content Header -->
+        <div class="provider-content-header">
+          <div class="provider-content-title-box">
+            <h2>Your Tour Packages</h2>
+            <p id="packages-count-display">Showing your recent local tourism offerings</p>
+          </div>
+
+          <div class="provider-actions-row">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-dashboard" title="Reload data from database">
+              🔄 Refresh
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('btn-open-create-modal').click()">
+              + New Package
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="provider-filter-toolbar">
+          
+          <!-- Status Filter Tabs -->
+          <div class="provider-status-tabs" role="tablist">
+            <button type="button" class="status-tab-btn active" data-status="all">
+              <span>All Packages</span>
+              <span class="status-tab-badge" id="tab-count-all">0</span>
+            </button>
+            <button type="button" class="status-tab-btn" data-status="APPROVED">
+              <span>Published</span>
+              <span class="status-tab-badge" id="tab-count-approved">0</span>
+            </button>
+            <button type="button" class="status-tab-btn" data-status="PENDING">
+              <span>Pending Review</span>
+              <span class="status-tab-badge" id="tab-count-pending">0</span>
+            </button>
+            <button type="button" class="status-tab-btn" data-status="OTHER">
+              <span>Inactive / Rejected</span>
+              <span class="status-tab-badge" id="tab-count-other">0</span>
+            </button>
+          </div>
+
+          <!-- Search & Sorting Controls -->
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <div class="provider-search-box">
+              <span class="provider-search-icon">🔍</span>
+              <input 
+                type="text" 
+                id="provider-search" 
+                class="provider-search-input" 
+                placeholder="Search packages by title or destination…"
+                aria-label="Search packages"
+              >
+            </div>
+
+            <select id="provider-sort" class="provider-switch-select" style="background: var(--bg-surface);">
+              <option value="newest">Sort: Newest First</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="duration_asc">Duration: Shortest</option>
+              <option value="duration_desc">Duration: Longest</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Responsive Data Table -->
+        <div class="provider-table-wrapper">
+          <table class="provider-table" aria-label="List of provider tour packages">
+            <thead>
+              <tr>
+                <th style="min-width: 280px;">Tour Package</th>
+                <th>Destination</th>
+                <th>Category</th>
+                <th>Price (INR)</th>
+                <th>Availability</th>
+                <th>Status</th>
+                <th style="text-align: right; padding-right: 1.5rem;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="packages-table-body">
+              <!-- Dynamically populated via AJAX in provider-dashboard.js -->
+            </tbody>
+          </table>
+
+          <!-- Empty State -->
+          <div id="packages-empty-state" style="padding: 3.5rem 1.5rem; text-align: center;" hidden>
+            <div style="font-size: 3rem; margin-bottom: 0.75rem;">🏝️</div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--primary); margin-bottom: 0.4rem;">
+              No matching packages found
+            </h3>
+            <p style="color: var(--text-secondary); max-width: 440px; margin: 0 auto 1.5rem; font-size: 0.92rem;">
+              No tour packages match your current filter. Create a new regional itinerary or clear your search to view all offerings.
+            </p>
+            <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('btn-open-create-modal').click()">
+              + Create First Package
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Interactive Availability Manager Modal -->
+  <div id="availability-modal" class="provider-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="avail-modal-title">
+    <div class="provider-modal-dialog">
+      <div class="provider-modal-header">
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--sage-dark); letter-spacing: 0.05em;">
+            Live Departure Management
+          </span>
+          <h3 id="avail-modal-title">Manage Package Availability</h3>
+          <p id="avail-modal-package-title" style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 0.2rem;"></p>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-avail-modal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="provider-modal-body">
+        <label style="display: block; font-weight: 600; font-size: 0.86rem; margin-bottom: 0.6rem; color: var(--text-primary);">
+          Scheduled Departure Dates (from MySQL `package_availability`):
+        </label>
+        
+        <!-- List of dates -->
+        <div id="avail-list-container" class="avail-list">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Add Date Form -->
+        <form id="avail-add-form" class="avail-add-form">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="avail-new-date" style="font-size: 0.82rem;">Departure Date</label>
+            <input class="form-input" type="date" id="avail-new-date" required style="padding: 0.45rem 0.65rem;">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="avail-new-seats" style="font-size: 0.82rem;">Open Seats</label>
+            <input class="form-input" type="number" id="avail-new-seats" min="1" max="100" value="12" required style="padding: 0.45rem 0.65rem;">
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-sm" style="height: 38px;">
+            + Add Date
+          </button>
+        </form>
+      </div>
+
+      <div class="provider-modal-footer">
+        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('btn-close-avail-modal').click()">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Create New Package Modal -->
+  <div id="create-package-modal" class="provider-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
+    <div class="provider-modal-dialog">
+      <div class="provider-modal-header">
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--sage-dark); letter-spacing: 0.05em;">
+            Member 3 Administration
+          </span>
+          <h3 id="create-modal-title">Create New Tour Package</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 0.2rem;">
+            Fill in the details. New packages are submitted for administrator moderation with status PENDING.
+          </p>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-create-modal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="create-package-form">
+        <div class="provider-modal-body" style="display: flex; flex-direction: column; gap: 1rem;">
+          
+          <div class="form-group">
+            <label class="form-label" for="create-title">Package Title *</label>
+            <input class="form-input" type="text" id="create-title" name="title" placeholder="e.g. Bandhavgarh Tiger Trail & Ancient Fort Safari" required maxlength="200">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="create-destination">Destination *</label>
+              <select class="form-input" id="create-destination" name="destination_id" required>
+                <!-- Populated dynamically from /api/destinations -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="create-category">Category *</label>
+              <select class="form-input" id="create-category" name="category_id" required>
+                <!-- Populated dynamically from /api/categories -->
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+              <label class="form-label" for="create-duration">Duration (Days) *</label>
+              <input class="form-input" type="number" id="create-duration" name="duration_days" min="1" max="30" value="4" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="create-price">Price (₹ INR) *</label>
+              <input class="form-input" type="number" id="create-price" name="price" min="500" step="100" value="16500" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="create-capacity">Capacity *</label>
+              <input class="form-input" type="number" id="create-capacity" name="capacity" min="1" max="100" value="14" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="create-image">Cover Image URL</label>
+            <input class="form-input" type="url" id="create-image" name="image" placeholder="https://images.unsplash.com/photo-..." value="https://images.unsplash.com/photo-1549366021-9f761d450615?auto=format&fit=crop&w=1200&q=80">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="create-date">Initial Departure Date (Optional)</label>
+            <input class="form-input" type="date" id="create-date" name="initial_date">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="create-desc">Description</label>
+            <textarea class="form-input" id="create-desc" name="description" rows="3" placeholder="Provide a detailed overview of the regional experience, highlights, and attractions…"></textarea>
+          </div>
+
+        </div>
+
+        <div class="provider-modal-footer">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-create">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Submit Package for Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Floating Toast Alerts -->
+  <div id="provider-toast-box" class="provider-toast-box" aria-live="polite"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System.</div>
+      <div>Member 3: Provider Portal & Package Administration</div>
+    </div>
+  </footer>
+
+  <!-- Script Modules -->
+  <script src="../js/provider-dashboard.js"></script>
+</body>
+</html>

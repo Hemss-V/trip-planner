@@ -98,6 +98,14 @@ Open your browser and navigate to:
 | `GET` | `/api/categories` | List all active tour categories with package counts |
 | `GET` | `/api/packages` | Filterable and sortable tour packages catalog |
 | `GET` | `/api/packages/:id` | Full package details, day-by-day itinerary, and upcoming availability |
+| `POST` | `/api/auth/register` | Register customer or provider account |
+| `GET` | `/api/providers` | List registered tour providers with package counts |
+| `GET` | `/api/provider/dashboard` | Provider metrics (total, approved, pending, inactive) & packages |
+| `POST` | `/api/provider/packages` | Create new tour package (submitted with PENDING status) |
+| `PATCH` | `/api/provider/packages/:id/status` | Update package status (APPROVED, PENDING, INACTIVE, REJECTED) |
+| `GET` | `/api/provider/packages/:id/availability` | List scheduled departure dates & available seats |
+| `POST` | `/api/provider/packages/:id/availability` | Schedule or update departure date for package |
+| `DELETE` | `/api/provider/availability/:id` | Remove a departure date from package availability |
 
 #### Package Filter Query Parameters:
 - `search` / `q`: Keyword search across package title, description, destination, and category.
@@ -133,7 +141,9 @@ trip-planner/
     ├── packages.html            # Advanced filter & package listing page
     ├── package-details.html     # Dedicated package & itinerary detail page
     ├── login.html               # Member 1 Auth placeholder
-    ├── register.html            # Member 1 Auth placeholder
+    ├── register.html            # Public account registration
+    ├── provider/
+    │   └── dashboard.html       # Member 3 Provider Portal & Package Admin
     ├── css/
     │   └── styles.css           # Complete design system & responsive styling
     └── js/
@@ -141,5 +151,7 @@ trip-planner/
         ├── app.js               # Homepage interactivity & modal coordinator
         ├── destinations.js      # Destinations page controller
         ├── packages.js          # Packages page filter & state controller
-        └── package-details.js   # Package details & itinerary controller
+        ├── package-details.js   # Package details & itinerary controller
+        ├── register.js          # Registration form controller
+        └── provider-dashboard.js# Member 3 Provider dashboard controller
 ```

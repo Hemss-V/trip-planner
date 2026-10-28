@@ -38,8 +38,8 @@ function sendJSON(res, statusCode, data) {
     'Content-Type': 'application/json; charset=utf-8',
     'Content-Length': Buffer.byteLength(payload),
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   });
   res.end(payload);
 }
@@ -630,6 +630,398 @@ async function handleGetPackageById(req, res, packageId) {
 }
 
 // ==========================================
+// Member 3: Provider Portal & Package Admin
+// ==========================================
+
+/**
+ * GET /api/providers
+ * Returns list of registered tour providers with package counts
+ */
+async function handleGetProviders(req, res) {
+  try {
+    const query = `
+      SELECT 
+        u.user_id,
+        u.name,
+        u.email,
+        u.mobile,
+        u.status,
+        u.created_at,
+        COUNT(p.package_id) AS total_packages,
+        SUM(CASE WHEN p.status = 'APPROVED' THEN 1 ELSE 0 END) AS approved_packages,
+        SUM(CASE WHEN p.status = 'PENDING' THEN 1 ELSE 0 END) AS pending_packages,
+        SUM(CASE WHEN p.status IN ('REJECTED', 'INACTIVE') THEN 1 ELSE 0 END) AS other_packages
+      FROM users u
+      LEFT JOIN tour_packages p ON u.user_id = p.provider_id
+      WHERE u.role = 'PROVIDER'
+      GROUP BY u.user_id
+      ORDER BY u.user_id ASC
+    `;
+    const [rows] = await pool.query(query);
+    sendJSON(res, 200, { success: true, data: rows });
+  } catch (err) {
+    console.error('Error fetching providers:', err.message);
+    sendError(res, 500, 'Failed to fetch providers.');
+  }
+}
+
+/**
+ * GET /api/provider/dashboard
+ * Query: ?provider_id=1
+ */
+async function handleGetProviderDashboard(req, res, parsedUrl) {
+  const providerIdParam = parsedUrl.query.provider_id;
+  let providerId = parseInt(providerIdParam, 10);
+
+  try {
+    // If no provider_id is specified or invalid, fetch the first active provider
+    if (isNaN(providerId) || providerId <= 0) {
+      const [firstProvider] = await pool.query(
+        "SELECT user_id FROM users WHERE role = 'PROVIDER' ORDER BY user_id ASC LIMIT 1"
+      );
+      if (firstProvider.length === 0) {
+        sendError(res, 404, 'No provider accounts found in the database.');
+        return;
+      }
+      providerId = firstProvider[0].user_id;
+    }
+
+    // 1. Fetch provider user profile
+    const [userRows] = await pool.query(
+      "SELECT user_id, name, email, mobile, role, status, created_at FROM users WHERE user_id = ? AND role = 'PROVIDER'",
+      [providerId]
+    );
+    if (userRows.length === 0) {
+      sendError(res, 404, 'Tour provider not found.');
+      return;
+    }
+    const provider = userRows[0];
+
+    // 2. Fetch aggregated metrics for packages
+    const statsQuery = `
+      SELECT
+        COUNT(*) AS total_packages,
+        SUM(CASE WHEN status = 'APPROVED' THEN 1 ELSE 0 END) AS approved_packages,
+        SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS pending_packages,
+        SUM(CASE WHEN status = 'REJECTED' THEN 1 ELSE 0 END) AS rejected_packages,
+        SUM(CASE WHEN status = 'INACTIVE' THEN 1 ELSE 0 END) AS inactive_packages
+      FROM tour_packages
+      WHERE provider_id = ?
+    `;
+    const [statsRows] = await pool.query(statsQuery, [providerId]);
+    const stats = statsRows[0] || {};
+
+    const totalPackages = Number(stats.total_packages) || 0;
+    const approvedPackages = Number(stats.approved_packages) || 0;
+    const pendingPackages = Number(stats.pending_packages) || 0;
+    const rejectedPackages = Number(stats.rejected_packages) || 0;
+    const inactivePackages = Number(stats.inactive_packages) || 0;
+    const rejectedOrInactive = rejectedPackages + inactivePackages;
+
+    // 3. Fetch bookings and revenue
+    const bookingStatsQuery = `
+      SELECT 
+        COUNT(b.booking_id) AS total_bookings,
+        COALESCE(SUM(b.total_amount), 0) AS total_revenue
+      FROM bookings b
+      JOIN tour_packages p ON b.package_id = p.package_id
+      WHERE p.provider_id = ?
+    `;
+    const [bookingStatsRows] = await pool.query(bookingStatsQuery, [providerId]);
+    const bookingStats = bookingStatsRows[0] || { total_bookings: 0, total_revenue: 0 };
+
+    // 4. Fetch provider's packages with details
+    const packagesQuery = `
+      SELECT 
+        p.package_id,
+        p.provider_id,
+        p.destination_id,
+        p.category_id,
+        p.title,
+        p.description,
+        p.duration_days,
+        p.price,
+        p.capacity,
+        p.image,
+        p.status,
+        p.created_at,
+        d.name AS destination_name,
+        d.city,
+        d.state,
+        c.category_name,
+        (SELECT COUNT(*) FROM package_itinerary pi WHERE pi.package_id = p.package_id) AS itinerary_count,
+        (SELECT COUNT(*) FROM package_availability pa WHERE pa.package_id = p.package_id AND pa.available_date >= CURDATE()) AS upcoming_availability_count,
+        (SELECT COUNT(*) FROM bookings b WHERE b.package_id = p.package_id) AS booking_count
+      FROM tour_packages p
+      LEFT JOIN destinations d ON p.destination_id = d.destination_id
+      LEFT JOIN categories c ON p.category_id = c.category_id
+      WHERE p.provider_id = ?
+      ORDER BY p.created_at DESC, p.package_id DESC
+    `;
+    const [packages] = await pool.query(packagesQuery, [providerId]);
+
+    sendJSON(res, 200, {
+      success: true,
+      data: {
+        provider,
+        stats: {
+          total: totalPackages,
+          approved: approvedPackages,
+          pending: pendingPackages,
+          rejected: rejectedPackages,
+          inactive: inactivePackages,
+          rejected_or_inactive: rejectedOrInactive,
+          total_bookings: Number(bookingStats.total_bookings) || 0,
+          total_revenue: Number(bookingStats.total_revenue) || 0
+        },
+        packages
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching provider dashboard:', err.message);
+    sendError(res, 500, 'Failed to fetch provider dashboard data.');
+  }
+}
+
+/**
+ * POST /api/provider/packages
+ * Create new tour package (defaults to PENDING approval)
+ */
+async function handleCreateProviderPackage(req, res) {
+  let body;
+  try {
+    body = await readJSONBody(req);
+  } catch (err) {
+    sendError(res, 400, 'Invalid JSON body.');
+    return;
+  }
+
+  const providerId = parseInt(body.provider_id, 10);
+  const destinationId = parseInt(body.destination_id, 10);
+  const categoryId = parseInt(body.category_id, 10);
+  const title = String(body.title || '').trim();
+  const description = String(body.description || '').trim();
+  const durationDays = parseInt(body.duration_days, 10);
+  const price = parseFloat(body.price);
+  const capacity = parseInt(body.capacity, 10);
+  const image = String(body.image || '').trim() || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80';
+
+  if (!providerId || isNaN(providerId)) {
+    sendError(res, 400, 'Provider ID is required.');
+    return;
+  }
+  if (!destinationId || isNaN(destinationId)) {
+    sendError(res, 400, 'Destination is required.');
+    return;
+  }
+  if (!categoryId || isNaN(categoryId)) {
+    sendError(res, 400, 'Category is required.');
+    return;
+  }
+  if (!title || title.length < 5) {
+    sendError(res, 400, 'Package title must be at least 5 characters.');
+    return;
+  }
+  if (isNaN(durationDays) || durationDays <= 0) {
+    sendError(res, 400, 'Duration must be at least 1 day.');
+    return;
+  }
+  if (isNaN(price) || price < 0) {
+    sendError(res, 400, 'Price must be a valid positive number.');
+    return;
+  }
+  if (isNaN(capacity) || capacity <= 0) {
+    sendError(res, 400, 'Capacity must be at least 1 traveler.');
+    return;
+  }
+
+  try {
+    const insertQuery = `
+      INSERT INTO tour_packages 
+        (provider_id, destination_id, category_id, title, description, duration_days, price, capacity, image, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')
+    `;
+    const [result] = await pool.query(insertQuery, [
+      providerId, destinationId, categoryId, title, description, durationDays, price, capacity, image
+    ]);
+    const packageId = result.insertId;
+
+    // Optional initial availability date
+    if (body.initial_date && /^\d{4}-\d{2}-\d{2}$/.test(body.initial_date)) {
+      await pool.query(
+        "INSERT IGNORE INTO package_availability (package_id, available_date, seats_available, status) VALUES (?, ?, ?, 'AVAILABLE')",
+        [packageId, body.initial_date, capacity]
+      );
+    }
+
+    sendJSON(res, 201, {
+      success: true,
+      message: 'Package created successfully and submitted for administrator review.',
+      data: {
+        package_id: packageId,
+        title,
+        status: 'PENDING'
+      }
+    });
+  } catch (err) {
+    console.error('Error creating package:', err.message);
+    sendError(res, 500, 'Failed to create tour package.');
+  }
+}
+
+/**
+ * PATCH /api/provider/packages/:id/status
+ * Update package status (APPROVED, PENDING, INACTIVE, REJECTED)
+ */
+async function handleUpdatePackageStatus(req, res, packageId) {
+  const id = parseInt(packageId, 10);
+  if (isNaN(id) || id <= 0) {
+    sendError(res, 400, 'Invalid package ID.');
+    return;
+  }
+
+  let body;
+  try {
+    body = await readJSONBody(req);
+  } catch (err) {
+    sendError(res, 400, 'Invalid JSON body.');
+    return;
+  }
+
+  const validStatuses = ['APPROVED', 'PENDING', 'INACTIVE', 'REJECTED'];
+  const newStatus = String(body.status || '').toUpperCase();
+  if (!validStatuses.includes(newStatus)) {
+    sendError(res, 400, 'Invalid status. Must be APPROVED, PENDING, INACTIVE, or REJECTED.');
+    return;
+  }
+
+  try {
+    const [result] = await pool.query(
+      "UPDATE tour_packages SET status = ? WHERE package_id = ?",
+      [newStatus, id]
+    );
+    if (result.affectedRows === 0) {
+      sendError(res, 404, 'Package not found.');
+      return;
+    }
+    sendJSON(res, 200, {
+      success: true,
+      message: `Package status updated to ${newStatus}.`,
+      status: newStatus
+    });
+  } catch (err) {
+    console.error('Error updating package status:', err.message);
+    sendError(res, 500, 'Failed to update package status.');
+  }
+}
+
+/**
+ * GET /api/provider/packages/:id/availability
+ * List availability dates for a package
+ */
+async function handleGetPackageAvailability(req, res, packageId) {
+  const id = parseInt(packageId, 10);
+  if (isNaN(id) || id <= 0) {
+    sendError(res, 400, 'Invalid package ID.');
+    return;
+  }
+
+  try {
+    const [rows] = await pool.query(
+      "SELECT availability_id, package_id, available_date, seats_available, status FROM package_availability WHERE package_id = ? ORDER BY available_date ASC",
+      [id]
+    );
+    sendJSON(res, 200, { success: true, data: rows });
+  } catch (err) {
+    console.error('Error fetching package availability:', err.message);
+    sendError(res, 500, 'Failed to fetch package availability.');
+  }
+}
+
+/**
+ * POST /api/provider/packages/:id/availability
+ * Add or update availability date for a package
+ */
+async function handleAddPackageAvailability(req, res, packageId) {
+  const id = parseInt(packageId, 10);
+  if (isNaN(id) || id <= 0) {
+    sendError(res, 400, 'Invalid package ID.');
+    return;
+  }
+
+  let body;
+  try {
+    body = await readJSONBody(req);
+  } catch (err) {
+    sendError(res, 400, 'Invalid JSON body.');
+    return;
+  }
+
+  const availableDate = String(body.available_date || '').trim();
+  const seatsAvailable = parseInt(body.seats_available, 10);
+  const status = String(body.status || 'AVAILABLE').toUpperCase();
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(availableDate)) {
+    sendError(res, 400, 'Valid date in YYYY-MM-DD format is required.');
+    return;
+  }
+  if (isNaN(seatsAvailable) || seatsAvailable < 0) {
+    sendError(res, 400, 'Seats available must be 0 or more.');
+    return;
+  }
+
+  try {
+    const query = `
+      INSERT INTO package_availability (package_id, available_date, seats_available, status)
+      VALUES (?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE seats_available = VALUES(seats_available), status = VALUES(status)
+    `;
+    const [result] = await pool.query(query, [id, availableDate, seatsAvailable, status]);
+    sendJSON(res, 201, {
+      success: true,
+      message: 'Availability date saved successfully.',
+      data: {
+        availability_id: result.insertId || undefined,
+        package_id: id,
+        available_date: availableDate,
+        seats_available: seatsAvailable,
+        status
+      }
+    });
+  } catch (err) {
+    console.error('Error adding availability:', err.message);
+    sendError(res, 500, 'Failed to save availability.');
+  }
+}
+
+/**
+ * DELETE /api/provider/availability/:id
+ * Remove availability date
+ */
+async function handleDeletePackageAvailability(req, res, availabilityId) {
+  const id = parseInt(availabilityId, 10);
+  if (isNaN(id) || id <= 0) {
+    sendError(res, 400, 'Invalid availability ID.');
+    return;
+  }
+
+  try {
+    const [result] = await pool.query(
+      "DELETE FROM package_availability WHERE availability_id = ?",
+      [id]
+    );
+    if (result.affectedRows === 0) {
+      sendError(res, 404, 'Availability entry not found.');
+      return;
+    }
+    sendJSON(res, 200, { success: true, message: 'Availability date removed successfully.' });
+  } catch (err) {
+    console.error('Error deleting availability:', err.message);
+    sendError(res, 500, 'Failed to remove availability date.');
+  }
+}
+
+// ==========================================
 // Main HTTP Request Router
 // ==========================================
 const server = http.createServer(async (req, res) => {
@@ -637,8 +1029,8 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type'
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     });
     res.end();
     return;
@@ -649,40 +1041,76 @@ const server = http.createServer(async (req, res) => {
 
   // REST API Routes
   if (pathname.startsWith('/api/')) {
+    // Auth routes
     if (pathname === '/api/auth/register' && req.method === 'POST') {
       await handleRegister(req, res);
       return;
     }
 
-    if (req.method !== 'GET') {
-      sendError(res, 405, 'Method Not Allowed');
+    // Provider Portal routes (Member 3)
+    if (pathname === '/api/providers' && req.method === 'GET') {
+      await handleGetProviders(req, res);
+      return;
+    }
+
+    if (pathname === '/api/provider/dashboard' && req.method === 'GET') {
+      await handleGetProviderDashboard(req, res, parsedUrl);
+      return;
+    }
+
+    if (pathname === '/api/provider/packages' && req.method === 'POST') {
+      await handleCreateProviderPackage(req, res);
+      return;
+    }
+
+    const provStatusMatch = pathname.match(/^\/api\/provider\/packages\/(\d+)\/status$/);
+    if (provStatusMatch && (req.method === 'PATCH' || req.method === 'PUT')) {
+      await handleUpdatePackageStatus(req, res, provStatusMatch[1]);
+      return;
+    }
+
+    const provAvailMatch = pathname.match(/^\/api\/provider\/packages\/(\d+)\/availability$/);
+    if (provAvailMatch) {
+      if (req.method === 'GET') {
+        await handleGetPackageAvailability(req, res, provAvailMatch[1]);
+        return;
+      }
+      if (req.method === 'POST') {
+        await handleAddPackageAvailability(req, res, provAvailMatch[1]);
+        return;
+      }
+    }
+
+    const provAvailDelMatch = pathname.match(/^\/api\/provider\/availability\/(\d+)$/);
+    if (provAvailDelMatch && req.method === 'DELETE') {
+      await handleDeletePackageAvailability(req, res, provAvailDelMatch[1]);
       return;
     }
 
     // Destinations routes
-    if (pathname === '/api/destinations') {
+    if (pathname === '/api/destinations' && req.method === 'GET') {
       await handleGetDestinations(req, res);
       return;
     }
     const destMatch = pathname.match(/^\/api\/destinations\/(\d+)$/);
-    if (destMatch) {
+    if (destMatch && req.method === 'GET') {
       await handleGetDestinationById(req, res, destMatch[1]);
       return;
     }
 
     // Categories routes
-    if (pathname === '/api/categories') {
+    if (pathname === '/api/categories' && req.method === 'GET') {
       await handleGetCategories(req, res);
       return;
     }
 
     // Packages routes
-    if (pathname === '/api/packages') {
+    if (pathname === '/api/packages' && req.method === 'GET') {
       await handleGetPackages(req, res, parsedUrl);
       return;
     }
     const pkgMatch = pathname.match(/^\/api\/packages\/(\d+)$/);
-    if (pkgMatch) {
+    if (pkgMatch && req.method === 'GET') {
       await handleGetPackageById(req, res, pkgMatch[1]);
       return;
     }
