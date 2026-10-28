@@ -1,66 +1,61 @@
-# Local Tourism Package Booking System — Roamly
-## Member 2 Module: Destinations & Tour Package Discovery
+# Roamly: Local Tourism Package Booking System
 
-A full-stack, database-driven travel discovery web platform designed for local tourism packages across India. Built strictly within the required project constraints using Vanilla HTML5, CSS3, Vanilla JavaScript (Fetch API), pure Node.js (`http`, `url`, `fs`, `path`), and MySQL 8.0+.
+A full-stack tourism platform for discovering and booking local tour packages across India. Built without frameworks, using Vanilla HTML/CSS/JavaScript (Fetch API), pure Node.js (`http`, `url`, `fs`, `path`) and MySQL 8.0+.
 
----
+## Features
 
-## 🧭 Features Implemented (Member 2)
+**Authentication (Member 1)**
+- Public registration page (`register.html`) for `CUSTOMER` and `PROVIDER` roles.
+- Client-side validation before submitting to `POST /api/auth/register`:
+  - Email format check
+  - Indian mobile number (optional `+91`, starts with 6-9, 10 digits)
+  - Password of at least 8 characters with an uppercase letter, a lowercase letter and a digit
+  - Password confirmation match
+- Inline field errors and a form-level alert for server responses.
 
-1. **Brand Identity & Premium Design System**:
-   - Centralized design tokens in `public/css/styles.css`.
-   - Warm ivory/off-white background, deep forest-green primary, muted sage accents, restrained terracotta highlights.
-   - Refined serif headings (`Playfair Display`) & clean sans-serif UI typography (`Plus Jakarta Sans`).
-   - Generous whitespace, rounded cards, subtle shadows, micro-animations, and full responsiveness across desktop, tablet, and mobile.
-   - Graceful fallback image handling for all destination and package photography.
+**Discovery (Member 2)**
+- Hero search with category selector and quick-search chips.
+- Destination cards with live package counts and starting prices (₹).
+- Package filters by keyword, destination, category, price range, duration and departure date.
+- Sorting by recommended, price and duration, with removable filter tags.
+- Package details as a slide-in drawer and as a standalone page (`package-details.html?id=:id`), with a day-by-day itinerary and live seat availability.
 
-2. **Hero Discovery & Search**:
-   - Atmospheric background imagery and compelling tagline.
-   - Working search box querying package titles, descriptions, destinations, and categories.
-   - Dynamic category selector populated from MySQL.
-   - Quick search chips (e.g., Kerala Backwaters, Royal Rajasthan, Goan Coastline, Himachal Valleys) that trigger instant filtering and smooth scroll to results.
+**Provider Dashboard and Package Administration (Member 3)**
+- Provider dashboard for managing tourism packages.
+- Package administration APIs for providers to manage their packages.
+- Live availability manager for departure dates and seat capacity.
 
-3. **Popular Destinations Discovery**:
-   - Cards dynamically populated from MySQL via `/api/destinations`.
-   - Displays destination imagery, name, city, state, country, description, real database package counts, and starting prices in INR (₹).
-   - "View Trips" button that instantly filters the packages catalog by the selected destination.
+**Booking and payments:** in progress. Package selection is passed on via `package_id`.
 
-4. **Comprehensive Tour Package Filtering & Sorting**:
-   - Real-time keyword search with input debouncing.
-   - Destination filter dropdown (populated from MySQL).
-   - Category filter dropdown (populated from MySQL).
-   - Numeric Min and Max price range filtering in INR (₹).
-   - Practical duration presets (Short 1–3 Days, Medium 4–5 Days, Long 6+ Days).
-   - Date departure availability filtering against `package_availability`.
-   - Sorting by: Recommended, Price: Low to High, Price: High to Low, Duration: Shortest First, Duration: Longest First.
-   - Active filter tags with single-click removal and "Reset All Filters" control.
-   - Real-time match counter and friendly empty states.
+## Tech Stack
 
-5. **Package Details & Vertical Day-by-Day Itinerary**:
-   - Fast, interactive slide-in modal drawer on both `index.html` and `packages.html`.
-   - Dedicated standalone shareable page on `package-details.html?id=:id`.
-   - Day-by-day vertical timeline with Day 1, Day 2, etc. fetched from `package_itinerary` ordered by `day_no ASC`.
-   - Departure dates calendar with live seat counts from `package_availability`.
-   - Clear operator credentials and destination highlight card.
+| Layer | Technology |
+|---|---|
+| Frontend | HTML5, CSS3, Vanilla JavaScript |
+| Communication | Fetch API (AJAX) |
+| Backend | Node.js built-in modules only (no Express) |
+| Database | MySQL 8.0+ with `mysql2/promise` |
 
-6. **Booking Module Integration Handoff**:
-   - Clean, non-destructive handoff notification explaining that `package_id` and selection are prepared for Member 3's booking and payment module upon team assembly.
+## Database
 
----
+Schema: `database/schema.sql` (database name `tourism_booking`)
 
-## 🛠️ Technology Stack (Strictly Enforced)
+| Area | Tables |
+|---|---|
+| Users and access | `users`, `addresses`, `admin_permissions`, `system_logs` |
+| Catalog | `destinations`, `categories`, `tour_packages`, `package_itinerary`, `package_availability` |
+| Transactions | `bookings`, `payments`, `reviews` |
 
-- **Frontend**: HTML5, Vanilla CSS3, Vanilla JavaScript (DOM manipulation, Event Listeners).
-- **Communication**: AJAX via native `fetch()` API.
-- **Backend**: Pure Node.js built-in modules (`http`, `url`, `fs`, `path`). *No Express, Fastify, or external backend frameworks.*
-- **Database**: MySQL 8.0+ using parameterized queries with `mysql2/promise` connection pool.
+Tables use primary and foreign keys with constraints. Users have one of four roles: `CUSTOMER`, `PROVIDER`, `ADMIN` or `SUPER_ADMIN`.
 
----
+## Getting Started
 
-## 🚀 Getting Started
+**1. Install dependencies**
+```bash
+npm install
+```
 
-### 1. Environment Configuration
-Ensure your `.env` file in the project root matches your local MySQL credentials:
+**2. Configure the environment.** Copy `.env.example` to `.env` and fill in your MySQL credentials:
 ```env
 PORT=3000
 DB_HOST=localhost
@@ -70,88 +65,58 @@ DB_PASSWORD=your_mysql_password
 DB_NAME=tourism_booking
 ```
 
-### 2. Database Setup & Demo Seed
-If you haven't yet run the schema or seed:
+**3. Create the database.** Run `database/schema.sql` in MySQL Workbench or the MySQL CLI:
 ```bash
-# 1. Apply Schema (if not already applied in MySQL Workbench)
-# File located at: database/schema.sql
+mysql -u root -p < database/schema.sql
+```
 
-# 2. Seed Realistic Indian Tourism Demo Data
+**4. Seed demo data** (destinations, categories, packages, itineraries, availability):
+```bash
 npm run seed
 ```
 
-### 3. Start the Server
+**5. Start the server**
 ```bash
 npm start
 ```
-Open your browser and navigate to:
-**[http://localhost:3000](http://localhost:3000)**
+Open **http://localhost:3000**. The registration page is at **http://localhost:3000/register.html**.
 
----
-
-## 📡 REST API Reference
+## API Reference
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/destinations` | List all active destinations with package counts & starting price |
-| `GET` | `/api/destinations/:id` | Retrieve one destination by ID and its approved packages |
-| `GET` | `/api/categories` | List all active tour categories with package counts |
-| `GET` | `/api/packages` | Filterable and sortable tour packages catalog |
-| `GET` | `/api/packages/:id` | Full package details, day-by-day itinerary, and upcoming availability |
-| `POST` | `/api/auth/register` | Register customer or provider account |
-| `GET` | `/api/providers` | List registered tour providers with package counts |
-| `GET` | `/api/provider/dashboard` | Provider metrics (total, approved, pending, inactive) & packages |
-| `POST` | `/api/provider/packages` | Create new tour package (submitted with PENDING status) |
-| `PATCH` | `/api/provider/packages/:id/status` | Update package status (APPROVED, PENDING, INACTIVE, REJECTED) |
-| `GET` | `/api/provider/packages/:id/availability` | List scheduled departure dates & available seats |
-| `POST` | `/api/provider/packages/:id/availability` | Schedule or update departure date for package |
-| `DELETE` | `/api/provider/availability/:id` | Remove a departure date from package availability |
+| `POST` | `/api/auth/register` | Register a customer or provider |
+| `GET` | `/api/destinations` | List destinations with package counts and starting price |
+| `GET` | `/api/destinations/:id` | Destination details and its approved packages |
+| `GET` | `/api/categories` | List categories with package counts |
+| `GET` | `/api/packages` | Filterable, sortable package catalog |
+| `GET` | `/api/packages/:id` | Package details, itinerary and availability |
 
-#### Package Filter Query Parameters:
-- `search` / `q`: Keyword search across package title, description, destination, and category.
-- `destination`: Filter by destination ID or name.
-- `category`: Filter by category ID or name.
-- `minPrice`: Minimum price in INR.
-- `maxPrice`: Maximum price in INR.
-- `minDuration`: Minimum days.
-- `maxDuration`: Maximum days.
-- `date`: Available departure date (YYYY-MM-DD).
-- `sort`: `recommended`, `price_asc`, `price_desc`, `duration_asc`, `duration_desc`.
+**Package query parameters:** `search`/`q`, `destination`, `category`, `minPrice`, `maxPrice`, `minDuration`, `maxDuration`, `date` (YYYY-MM-DD), `sort` (`recommended`, `price_asc`, `price_desc`, `duration_asc`, `duration_desc`).
 
----
+Provider package administration and availability endpoints are implemented in `server/server.js`.
 
-## 📁 File Structure
+## Project Structure
 
 ```
 trip-planner/
-├── .env                         # Local environment configuration
-├── .env.example                 # Example environment template
-├── package.json                 # Project configuration & scripts
+├── .env.example
+├── package.json
 ├── database/
-│   ├── schema.sql               # MySQL 8.0+ database schema
-│   └── seed-demo-data.sql       # Safe idempotent seed data script
+│   ├── schema.sql              # MySQL schema
+│   └── seed-demo-data.sql      # Demo data
 ├── server/
-│   ├── server.js                # Pure Node.js HTTP server & REST API
-│   ├── seed.js                  # Automated seed runner
-│   └── config/
-│       └── db.js                # MySQL2 connection pool module
+│   ├── server.js               # HTTP server and REST API
+│   ├── seed.js                 # Seed runner
+│   └── config/db.js            # MySQL connection pool
 └── public/
-    ├── index.html               # Main discovery landing page
-    ├── destinations.html        # Regional destinations exploration page
-    ├── packages.html            # Advanced filter & package listing page
-    ├── package-details.html     # Dedicated package & itinerary detail page
-    ├── login.html               # Member 1 Auth placeholder
-    ├── register.html            # Public account registration
-    ├── provider/
-    │   └── dashboard.html       # Member 3 Provider Portal & Package Admin
-    ├── css/
-    │   └── styles.css           # Complete design system & responsive styling
+    ├── index.html, destinations.html, packages.html, package-details.html
+    ├── login.html, register.html
+    ├── (provider dashboard pages)
+    ├── css/styles.css
     └── js/
-        ├── api.js               # Reusable API fetch client & formatters
-        ├── app.js               # Homepage interactivity & modal coordinator
-        ├── destinations.js      # Destinations page controller
-        ├── packages.js          # Packages page filter & state controller
-        ├── package-details.js   # Package details & itinerary controller
-        ├── register.js          # Registration form controller
-        └── provider-dashboard.js# Member 3 Provider dashboard controller
+        ├── api.js, app.js, destinations.js
+        ├── packages.js, package-details.js
+        ├── register.js         # Registration validation and submit
+        └── (provider dashboard scripts)
 ```
