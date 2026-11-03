@@ -111,3 +111,42 @@ INSERT IGNORE INTO coupons (coupon_id, code, description, discount_type, discoun
 (2, 'FESTIVE25', '25% festive discount for family & group trips', 'PERCENT', 25.00, 15000.00, 6000.00, '2028-12-31', 'ACTIVE'),
 (3, 'ROAMLY1000', 'Flat ₹1,000 instant savings on premium tours', 'FLAT', 1000.00, 10000.00, 1000.00, '2028-12-31', 'ACTIVE'),
 (4, 'EARLYBIRD', '15% early bird booking discount', 'PERCENT', 15.00, 8000.00, 3500.00, '2028-12-31', 'ACTIVE');
+
+-- 8. Additional Admins, Super Admins & Providers (Member 3)
+INSERT IGNORE INTO users (user_id, name, email, password, mobile, role, status) VALUES
+(5, 'Anita Desai', 'admin@roamly.in', '$2b$10$demoHashedPasswordRoamly1234', '+91 98000 11223', 'ADMIN', 'ACTIVE'),
+(6, 'Vikram Mehta', 'superadmin@roamly.in', '$2b$10$demoHashedPasswordRoamly1234', '+91 98999 88776', 'SUPER_ADMIN', 'ACTIVE'),
+(7, 'Rajesh Kumar', 'rajesh@customer.in', '$2b$10$demoHashedPasswordRoamly9999', '+91 97111 33445', 'CUSTOMER', 'ACTIVE'),
+(8, 'Himalayan Odyssey Tours', 'himalayan@roamly.in', '$2b$10$demoHashedPasswordRoamly5678', '+91 98777 66554', 'PROVIDER', 'PENDING');
+
+-- 9. Admin Permissions (Member 3)
+INSERT IGNORE INTO admin_permissions (admin_id, permission_name) VALUES
+(5, 'MODERATE_PACKAGES'),
+(5, 'MANAGE_DESTINATIONS'),
+(5, 'MANAGE_CATEGORIES'),
+(5, 'MANAGE_USERS'),
+(5, 'VIEW_REPORTS');
+
+-- 10. Sample Bookings & Payments for Dashboard Metrics
+INSERT IGNORE INTO bookings (booking_id, customer_id, package_id, availability_id, travelers, total_amount, booking_status, payment_status) VALUES
+(1, 3, 1, 1, 2, 49998.00, 'CONFIRMED', 'PAID'),
+(2, 4, 2, 4, 2, 65000.00, 'COMPLETED', 'PAID'),
+(3, 3, 3, 6, 1, 18999.00, 'PENDING', 'PAID');
+
+INSERT IGNORE INTO payments (payment_id, booking_id, customer_id, amount, payment_method, payment_status, paid_at) VALUES
+(1, 1, 3, 49998.00, 'UPI', 'SUCCESS', CURRENT_TIMESTAMP),
+(2, 2, 4, 65000.00, 'CARD', 'SUCCESS', CURRENT_TIMESTAMP),
+(3, 3, 3, 18999.00, 'NETBANKING', 'SUCCESS', CURRENT_TIMESTAMP);
+
+-- 11. Sample System Activity Logs (Member 3)
+INSERT IGNORE INTO system_logs (log_id, user_id, action, description, ip_address) VALUES
+(1, 5, 'PACKAGE_MODERATION', 'Approved package #1 (Kerala Backwaters & Munnar Tea Estates)', '127.0.0.1'),
+(2, 5, 'USER_STATUS_CHANGE', 'Approved provider account #1 (Royal Heritage Journeys)', '127.0.0.1'),
+(3, 6, 'ADMIN_PERMISSION_UPDATE', 'Assigned all default management permissions to Admin #5', '127.0.0.1'),
+(4, 3, 'USER_LOGIN', 'Customer Aarav Sharma signed in from web portal', '127.0.0.1'),
+(5, 1, 'PACKAGE_CREATE', 'Created new tour package #1 with 5 days duration', '127.0.0.1'),
+(6, 6, 'USER_STATUS_CHANGE', 'Set new provider #8 status to PENDING verification', '127.0.0.1');
+
+-- 12. Sample Custom Itinerary (Member 3)
+INSERT IGNORE INTO custom_itineraries (itinerary_id, customer_id, destination_id, title, start_date, duration_days, travel_pace, interests, accommodation_tier, estimated_cost, notes, day_plan, booking_request_status, provider_id) VALUES
+(1, 3, 1, 'Serene Kerala Backwaters & Tea Trails', '2026-12-15', 3, 'Relaxed', 'Nature,Food', 'Standard', 34500.00, 'Looking for authentic Kerala cuisine and peaceful houseboat stay.', '[{"day":1,"morning":"Arrive at Kochi airport, transfer to Alleppey","afternoon":"Board traditional houseboat cruise along Vembanad Lake","evening":"Sunset tea & traditional Kerala sadhya dinner"},{"day":2,"morning":"Drive to Munnar, scenic waterfall stops","afternoon":"Visit organic tea museum & spice gardens","evening":"Kathakali cultural performance and relax"},{"day":3,"morning":"Eravikulam National Park morning nature walk","afternoon":"Souvenir shopping in local bazaar","evening":"Transfer back to Kochi for departure"}]', 'SUBMITTED', 1);

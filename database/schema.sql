@@ -193,3 +193,29 @@ CREATE TABLE IF NOT EXISTS coupons (
     status ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS custom_itineraries (
+    itinerary_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT NOT NULL,
+    destination_id INT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    start_date DATE NOT NULL,
+    duration_days INT NOT NULL,
+    travel_pace ENUM('Relaxed', 'Moderate', 'Adventure') NOT NULL DEFAULT 'Moderate',
+    interests VARCHAR(255) NOT NULL,
+    accommodation_tier ENUM('Budget', 'Standard', 'Luxury') NOT NULL DEFAULT 'Standard',
+    estimated_cost DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    notes TEXT,
+    day_plan JSON,
+    booking_request_status ENUM('DRAFT', 'SUBMITTED', 'ACCEPTED', 'REJECTED') NOT NULL DEFAULT 'DRAFT',
+    provider_id INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_custom_customer
+        FOREIGN KEY (customer_id) REFERENCES users(user_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_custom_destination
+        FOREIGN KEY (destination_id) REFERENCES destinations(destination_id),
+    CONSTRAINT fk_custom_provider
+        FOREIGN KEY (provider_id) REFERENCES users(user_id)
+        ON DELETE SET NULL
+);

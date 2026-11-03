@@ -11,6 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { pool, testConnection } = require('./config/db');
+const member3 = require('./member3_handlers');
 
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 const PUBLIC_DIR = path.resolve(__dirname, '..', 'public');
@@ -1712,6 +1713,10 @@ const server = http.createServer(async (req, res) => {
       await handleRegister(req, res);
       return;
     }
+    if (pathname === '/api/auth/login' && req.method === 'POST') {
+      await member3.handleLogin(req, res);
+      return;
+    }
 
     // Provider Portal routes (Member 3)
     if (pathname === '/api/providers' && req.method === 'GET') {
@@ -1724,14 +1729,50 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if (pathname === '/api/provider/packages' && req.method === 'POST') {
-      await handleCreateProviderPackage(req, res);
-      return;
+    if (pathname === '/api/provider/packages') {
+      if (req.method === 'GET') {
+        await member3.handleGetProviderPackages(req, res, parsedUrl);
+        return;
+      }
+      if (req.method === 'POST') {
+        await handleCreateProviderPackage(req, res);
+        return;
+      }
+    }
+
+    const provPkgIdMatch = pathname.match(/^\/api\/provider\/packages\/(\d+)$/);
+    if (provPkgIdMatch) {
+      if (req.method === 'PUT') {
+        await member3.handleUpdateProviderPackage(req, res, provPkgIdMatch[1]);
+        return;
+      }
+      if (req.method === 'DELETE') {
+        await member3.handleDeleteProviderPackage(req, res, provPkgIdMatch[1], parsedUrl);
+        return;
+      }
     }
 
     const provStatusMatch = pathname.match(/^\/api\/provider\/packages\/(\d+)\/status$/);
     if (provStatusMatch && (req.method === 'PATCH' || req.method === 'PUT')) {
       await handleUpdatePackageStatus(req, res, provStatusMatch[1]);
+      return;
+    }
+
+    const provItinMatch = pathname.match(/^\/api\/provider\/packages\/(\d+)\/itinerary$/);
+    if (provItinMatch) {
+      if (req.method === 'GET') {
+        await member3.handleGetPackageItinerary(req, res, provItinMatch[1]);
+        return;
+      }
+      if (req.method === 'POST') {
+        await member3.handleAddPackageItineraryDay(req, res, provItinMatch[1]);
+        return;
+      }
+    }
+
+    const provItinDelMatch = pathname.match(/^\/api\/provider\/itinerary\/(\d+)$/);
+    if (provItinDelMatch && req.method === 'DELETE') {
+      await member3.handleDeleteItineraryItem(req, res, provItinDelMatch[1]);
       return;
     }
 
@@ -1750,6 +1791,171 @@ const server = http.createServer(async (req, res) => {
     const provAvailDelMatch = pathname.match(/^\/api\/provider\/availability\/(\d+)$/);
     if (provAvailDelMatch && req.method === 'DELETE') {
       await handleDeletePackageAvailability(req, res, provAvailDelMatch[1]);
+      return;
+    }
+
+    if (pathname === '/api/provider/bookings' && req.method === 'GET') {
+      await member3.handleGetProviderBookings(req, res, parsedUrl);
+      return;
+    }
+
+    const provBookingStatusMatch = pathname.match(/^\/api\/provider\/bookings\/(\d+)\/status$/);
+    if (provBookingStatusMatch && req.method === 'PATCH') {
+      await member3.handleUpdateProviderBookingStatus(req, res, provBookingStatusMatch[1]);
+      return;
+    }
+
+    if (pathname === '/api/provider/reports' && req.method === 'GET') {
+      await member3.handleGetProviderReports(req, res, parsedUrl);
+      return;
+    }
+
+    if (pathname === '/api/provider/custom-requests' && req.method === 'GET') {
+      await member3.handleGetProviderCustomRequests(req, res, parsedUrl);
+      return;
+    }
+
+    const provCustReqMatch = pathname.match(/^\/api\/provider\/custom-requests\/(\d+)\/status$/);
+    if (provCustReqMatch && req.method === 'PATCH') {
+      await member3.handleUpdateCustomRequestStatus(req, res, provCustReqMatch[1]);
+      return;
+    }
+
+    // Admin Portal routes (Member 3)
+    if (pathname === '/api/admin/dashboard' && req.method === 'GET') {
+      await member3.handleGetAdminDashboard(req, res);
+      return;
+    }
+
+    if (pathname === '/api/admin/packages' && req.method === 'GET') {
+      await member3.handleGetAdminPackages(req, res, parsedUrl);
+      return;
+    }
+
+    const adminPkgStatusMatch = pathname.match(/^\/api\/admin\/packages\/(\d+)\/status$/);
+    if (adminPkgStatusMatch && req.method === 'PATCH') {
+      await member3.handleAdminModeratePackage(req, res, adminPkgStatusMatch[1]);
+      return;
+    }
+
+    if (pathname === '/api/admin/destinations') {
+      if (req.method === 'GET') {
+        await member3.handleAdminGetDestinations(req, res);
+        return;
+      }
+      if (req.method === 'POST') {
+        await member3.handleAdminCreateDestination(req, res);
+        return;
+      }
+    }
+
+    const adminDestMatch = pathname.match(/^\/api\/admin\/destinations\/(\d+)$/);
+    if (adminDestMatch) {
+      if (req.method === 'PUT') {
+        await member3.handleAdminUpdateDestination(req, res, adminDestMatch[1]);
+        return;
+      }
+      if (req.method === 'DELETE') {
+        await member3.handleAdminDeleteDestination(req, res, adminDestMatch[1], parsedUrl);
+        return;
+      }
+    }
+
+    if (pathname === '/api/admin/categories') {
+      if (req.method === 'GET') {
+        await member3.handleAdminGetCategories(req, res);
+        return;
+      }
+      if (req.method === 'POST') {
+        await member3.handleAdminCreateCategory(req, res);
+        return;
+      }
+    }
+
+    const adminCatMatch = pathname.match(/^\/api\/admin\/categories\/(\d+)$/);
+    if (adminCatMatch) {
+      if (req.method === 'PUT') {
+        await member3.handleAdminUpdateCategory(req, res, adminCatMatch[1]);
+        return;
+      }
+      if (req.method === 'DELETE') {
+        await member3.handleAdminDeleteCategory(req, res, adminCatMatch[1], parsedUrl);
+        return;
+      }
+    }
+
+    if (pathname === '/api/admin/users' && req.method === 'GET') {
+      await member3.handleAdminGetUsers(req, res, parsedUrl);
+      return;
+    }
+
+    const adminUserStatusMatch = pathname.match(/^\/api\/admin\/users\/(\d+)\/status$/);
+    if (adminUserStatusMatch && req.method === 'PATCH') {
+      await member3.handleAdminUpdateUserStatus(req, res, adminUserStatusMatch[1]);
+      return;
+    }
+
+    if (pathname === '/api/admin/reports' && req.method === 'GET') {
+      await member3.handleGetAdminReports(req, res);
+      return;
+    }
+
+    // Super Admin Portal routes (Member 3)
+    if (pathname === '/api/superadmin/admins') {
+      if (req.method === 'GET') {
+        await member3.handleGetSuperAdminAdmins(req, res);
+        return;
+      }
+      if (req.method === 'POST') {
+        await member3.handleCreateAdmin(req, res);
+        return;
+      }
+    }
+
+    const superAdminPermMatch = pathname.match(/^\/api\/superadmin\/admins\/(\d+)\/permissions$/);
+    if (superAdminPermMatch && req.method === 'PATCH') {
+      await member3.handleUpdateAdminPermissions(req, res, superAdminPermMatch[1]);
+      return;
+    }
+
+    const superAdminStatusMatch = pathname.match(/^\/api\/superadmin\/admins\/(\d+)\/status$/);
+    if (superAdminStatusMatch && req.method === 'PATCH') {
+      await member3.handleUpdateAdminStatus(req, res, superAdminStatusMatch[1]);
+      return;
+    }
+
+    if (pathname === '/api/superadmin/logs' && req.method === 'GET') {
+      await member3.handleGetSystemLogs(req, res, parsedUrl);
+      return;
+    }
+
+    // Customer Custom Itinerary Planner routes (Member 3)
+    if (pathname === '/api/customer/itineraries') {
+      if (req.method === 'GET') {
+        await member3.handleGetCustomerItineraries(req, res, parsedUrl);
+        return;
+      }
+      if (req.method === 'POST') {
+        await member3.handleCreateCustomItinerary(req, res);
+        return;
+      }
+    }
+
+    const custItinMatch = pathname.match(/^\/api\/customer\/itineraries\/(\d+)$/);
+    if (custItinMatch) {
+      if (req.method === 'GET') {
+        await member3.handleGetCustomItineraryById(req, res, custItinMatch[1]);
+        return;
+      }
+      if (req.method === 'DELETE') {
+        await member3.handleDeleteCustomItinerary(req, res, custItinMatch[1]);
+        return;
+      }
+    }
+
+    const custItinSubmitMatch = pathname.match(/^\/api\/customer\/itineraries\/(\d+)\/submit$/);
+    if (custItinSubmitMatch && req.method === 'POST') {
+      await member3.handleSubmitCustomItinerary(req, res, custItinSubmitMatch[1]);
       return;
     }
 

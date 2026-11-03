@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin Portal — Roamly Tourism Platform</title>
+  <meta name="description" content="Roamly System Super Administration - Administrator privilege management, audit trails, and security logs.">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <style>
+    .superadmin-topbar {
+      border-bottom: 2px solid #581C87;
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+    }
+    .superadmin-badge {
+      background: #F3E8FF;
+      color: #6B21A8;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .permission-chip {
+      display: inline-block;
+      background: var(--primary-subtle);
+      color: var(--primary);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin: 0.15rem 0.2rem;
+    }
+    .log-action-tag {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .tag-login { background: #E0E7FF; color: #3730A3; }
+    .tag-moderation { background: #FEF3C7; color: #92400E; }
+    .tag-user { background: #DCFCE7; color: #166534; }
+    .tag-security { background: #FEE2E2; color: #991B1B; }
+    .tag-default { background: var(--bg-surface-soft); color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="site-header" style="border-bottom: 2px solid #6B21A8;">
+    <div class="container nav-container">
+      <a href="../index.html" class="brand-logo">
+        <div class="brand-icon">⚡</div>
+        <span>Roamly <span style="font-size: 0.8rem; font-family: var(--font-sans); color: #6B21A8; font-weight: 700; text-transform: uppercase; margin-left: 0.2rem;">Super Admin</span></span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="dashboard.html" class="active" style="color: #6B21A8; font-weight: 700;">Super Admin Console</a>
+        <a href="../admin/dashboard.html">Admin Console</a>
+        <a href="../provider/dashboard.html">Provider Portal</a>
+        <a href="../packages.html">Catalog</a>
+      </nav>
+
+      <div class="nav-actions">
+        <span style="font-size: 0.85rem; font-weight: 600; color: #6B21A8;">Vikram Mehta (Super Admin)</span>
+        <a href="../login.html" class="btn btn-outline btn-sm">Sign Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="provider-portal-container">
+    <div class="container">
+
+      <!-- Header -->
+      <div class="superadmin-topbar">
+        <div>
+          <div class="superadmin-badge">
+            <span>⚡</span> System Governance &amp; Access Control
+          </div>
+          <h1 class="provider-portal-title" style="margin-top: 0.35rem;">Super Administrator Portal</h1>
+          <p class="provider-portal-subtitle">
+            Delegate administrative roles, manage fine-grained permissions, and audit all system transactions and activities.
+          </p>
+        </div>
+
+        <div class="provider-account-panel" style="border-color: #D8B4FE;">
+          <div class="provider-avatar-circle" style="background: #F3E8FF; color: #6B21A8;">V</div>
+          <div class="provider-identity-meta">
+            <div class="provider-identity-name">Vikram Mehta</div>
+            <div class="provider-identity-role">
+              <span>superadmin@roamly.in</span>
+              <span>•</span>
+              <span style="color: #6B21A8; font-weight: 700;">Root Authority</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Super Admin Navigation Tabs -->
+      <div class="provider-status-tabs" style="margin-bottom: 2rem;">
+        <button type="button" class="status-tab-btn active" data-sview="admins" id="tab-super-admins">
+          👥 Admin Accounts &amp; Permissions
+        </button>
+        <button type="button" class="status-tab-btn" data-sview="logs" id="tab-super-logs">
+          📜 System Activity Audit Logs
+        </button>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW 1: MANAGE ADMIN ACCOUNTS & PERMISSIONS -->
+      <!-- ============================================== -->
+      <div id="sview-admins" class="super-view-panel">
+        <section class="provider-content-card">
+          <div class="provider-content-header">
+            <div class="provider-content-title-box">
+              <h2>System Administrators</h2>
+              <p>Create staff admin accounts and configure their role authorizations</p>
+            </div>
+            <div class="provider-actions-row">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-admins">🔄 Refresh</button>
+              <button type="button" class="btn btn-primary btn-sm" id="btn-open-create-admin" style="background: #6B21A8; border-color: #6B21A8;">
+                + Create Admin Account
+              </button>
+            </div>
+          </div>
+
+          <div class="provider-table-wrapper">
+            <table class="provider-table" aria-label="Admins Table">
+              <thead>
+                <tr>
+                  <th>Admin User</th>
+                  <th>Contact Email & Phone</th>
+                  <th>Role</th>
+                  <th>Assigned Permissions</th>
+                  <th>Status</th>
+                  <th style="text-align: right; padding-right: 1.5rem;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="super-admins-table-body">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW 2: FILTERABLE SYSTEM ACTIVITY LOGS -->
+      <!-- ============================================== -->
+      <div id="sview-logs" class="super-view-panel" style="display: none;">
+        <section class="provider-content-card">
+          <div class="provider-content-header">
+            <div class="provider-content-title-box">
+              <h2>System Activity Logs (`system_logs`)</h2>
+              <p>Security audit trail tracking logins, content moderation, status updates, and administrative events</p>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-logs">🔄 Refresh Logs</button>
+          </div>
+
+          <!-- Log Filters -->
+          <div class="provider-filter-toolbar">
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <select id="log-action-filter" class="provider-switch-select">
+                <option value="ALL">All Actions</option>
+                <!-- Populated dynamically -->
+              </select>
+
+              <div class="provider-search-box">
+                <span class="provider-search-icon">🔍</span>
+                <input type="text" id="log-search-input" class="provider-search-input" placeholder="Search log descriptions, user names…">
+              </div>
+            </div>
+          </div>
+
+          <!-- Logs Table -->
+          <div class="provider-table-wrapper">
+            <table class="provider-table" aria-label="System Logs Table">
+              <thead>
+                <tr>
+                  <th style="width: 80px;">Log ID</th>
+                  <th style="width: 170px;">Timestamp</th>
+                  <th>User / Operator</th>
+                  <th>Action</th>
+                  <th>Description & Audit Note</th>
+                  <th>IP Address</th>
+                </tr>
+              </thead>
+              <tbody id="super-logs-table-body">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============================================== -->
+  <!-- MODAL: CREATE ADMIN ACCOUNT -->
+  <!-- ============================================== -->
+  <div id="create-admin-modal" class="provider-modal-backdrop" role="dialog" aria-modal="true">
+    <div class="provider-modal-dialog">
+      <div class="provider-modal-header">
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #6B21A8;">Privilege Delegation</span>
+          <h3>Create Administrator Account</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-create-admin">&times;</button>
+      </div>
+
+      <form id="create-admin-form">
+        <div class="provider-modal-body" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label" for="admin-name">Full Name *</label>
+            <input class="form-input" type="text" id="admin-name" name="admin-name" required placeholder="e.g. Ramesh Varma">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="admin-email">Email Address *</label>
+              <input class="form-input" type="email" id="admin-email" name="admin-email" required placeholder="ramesh@roamly.in">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="admin-mobile">Mobile Number</label>
+              <input class="form-input" type="text" id="admin-mobile" name="admin-mobile" placeholder="+91 98765 00000">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="admin-password">Password *</label>
+            <input class="form-input" type="password" id="admin-password" name="admin-password" required minlength="6" placeholder="At least 6 characters">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Assign Permissions:</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; background: var(--bg-surface-soft); padding: 0.75rem; border-radius: 6px;">
+              <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+                <input type="checkbox" name="permissions" value="MODERATE_PACKAGES" checked> Moderate Packages
+              </label>
+              <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+                <input type="checkbox" name="permissions" value="MANAGE_DESTINATIONS" checked> Manage Destinations
+              </label>
+              <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+                <input type="checkbox" name="permissions" value="MANAGE_CATEGORIES" checked> Manage Categories
+              </label>
+              <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+                <input type="checkbox" name="permissions" value="MANAGE_USERS" checked> Manage Users
+              </label>
+              <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+                <input type="checkbox" name="permissions" value="VIEW_REPORTS" checked> View Reports
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="provider-modal-footer">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-create-admin">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" style="background: #6B21A8; border-color: #6B21A8;">Create Admin</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: EDIT PERMISSIONS -->
+  <!-- ============================================== -->
+  <div id="edit-perms-modal" class="provider-modal-backdrop" role="dialog" aria-modal="true">
+    <div class="provider-modal-dialog">
+      <div class="provider-modal-header">
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #6B21A8;">Access Control</span>
+          <h3 id="edit-perms-modal-title">Edit Admin Permissions</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-edit-perms">&times;</button>
+      </div>
+
+      <form id="edit-perms-form">
+        <input type="hidden" id="edit-perms-admin-id">
+        <div class="provider-modal-body">
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1rem;">
+            Select authorizations granted to this administrator:
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 0.65rem; background: var(--bg-surface-soft); padding: 1rem; border-radius: 8px;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+              <input type="checkbox" id="perm-moderate" value="MODERATE_PACKAGES">
+              <span><strong>MODERATE_PACKAGES</strong> (Approve, reject, pause tours)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+              <input type="checkbox" id="perm-destinations" value="MANAGE_DESTINATIONS">
+              <span><strong>MANAGE_DESTINATIONS</strong> (Add, edit, delete locations)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+              <input type="checkbox" id="perm-categories" value="MANAGE_CATEGORIES">
+              <span><strong>MANAGE_CATEGORIES</strong> (Add, edit, delete tour types)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+              <input type="checkbox" id="perm-users" value="MANAGE_USERS">
+              <span><strong>MANAGE_USERS</strong> (Approve providers, block users)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+              <input type="checkbox" id="perm-reports" value="VIEW_REPORTS">
+              <span><strong>VIEW_REPORTS</strong> (Inspect financial analytics)</span>
+            </label>
+          </div>
+        </div>
+        <div class="provider-modal-footer">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-edit-perms">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" style="background: #6B21A8; border-color: #6B21A8;">Save Permissions</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Box -->
+  <div id="provider-toast-box" class="provider-toast-box" aria-live="polite"></div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System.</div>
+      <div>Super Administrator Portal</div>
+    </div>
+  </footer>
+
+  <script src="superadmin.js"></script>
+</body>
+</html>
+

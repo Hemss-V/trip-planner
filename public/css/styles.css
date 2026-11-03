@@ -2060,7 +2060,8 @@ select.filter-control {
   transition: opacity var(--transition-normal), visibility var(--transition-normal);
 }
 
-.provider-modal-backdrop.active {
+.provider-modal-backdrop.active,
+.provider-modal-backdrop.is-open {
   opacity: 1;
   visibility: visible;
 }
@@ -2080,7 +2081,8 @@ select.filter-control {
   flex-direction: column;
 }
 
-.provider-modal-backdrop.active .provider-modal-dialog {
+.provider-modal-backdrop.active .provider-modal-dialog,
+.provider-modal-backdrop.is-open .provider-modal-dialog {
   transform: translateY(0) scale(1);
 }
 
@@ -2857,4 +2859,44 @@ select.filter-control {
   .booking-highlights-row {
     grid-template-columns: 1fr;
   }
+}
+
+
+/* ==========================================
+   Member 3: Comprehensive Portal Badges & Actions
+   ========================================== */
+.provider-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.provider-status-badge.badge-approved {
+  background: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #C8E6C9;
+}
+.provider-status-badge.badge-pending {
+  background: #FFF3E0;
+  color: #E65100;
+  border: 1px solid #FFE0B2;
+}
+.provider-status-badge.badge-rejected {
+  background: #FFEBEE;
+  color: #C62828;
+  border: 1px solid #FFCDD2;
+}
+.provider-status-badge.badge-inactive {
+  background: #ECEFF1;
+  color: #546E7A;
+  border: 1px solid #CFD8DC;
+}
+.provider-status-badge.badge-completed {
+  background: #E0F2FE;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
 }

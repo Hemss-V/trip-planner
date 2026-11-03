@@ -21,9 +21,37 @@ A full-stack tourism platform for discovering and booking local tour packages ac
 - Package details as a slide-in drawer and as a standalone page (`package-details.html?id=:id`), with a day-by-day itinerary and live seat availability.
 
 **Provider Dashboard and Package Administration (Member 3)**
-- Provider dashboard for managing tourism packages.
-- Package administration APIs for providers to manage their packages.
-- Live availability manager for departure dates and seat capacity.
+- Full Provider Portal suite: My Packages, Edit Package, Package Bookings, Provider Reports.
+- Package CRUD: add, edit, and safely archive/delete packages.
+- Day-by-day Itinerary Builder & Activity Manager for morning, afternoon, and evening activities.
+- Live departure date and seat capacity manager (`package_availability`).
+- Customer booking management: view reservations and update status to `CONFIRMED` or `COMPLETED`.
+- Revenue and performance statistics by package and monthly trends.
+- Custom tour request review and acceptance/rejection from travelers.
+
+**Central Administrator Portal (Member 3)**
+- Central Admin dashboard with platform-wide health metrics.
+- Package moderation: approve, reject (with feedback), or pause/disable packages.
+- Destination & Category CRUD management with integrity checks.
+- User account management: verify and approve pending providers, block/unblock users.
+- System-wide revenue, booking volume, and operator performance analytics.
+
+**Super Administrator Portal (Member 3)**
+- Super Admin governance console.
+- Admin account creation and granular permission delegation (`admin_permissions`).
+- Filterable system activity audit logs (`system_logs`) tracking logins, moderation, and account status updates.
+
+**Personalized Itinerary Planner (Member 3 — Special Feature)**
+- Interactive customer trip planner (`public/customer/itinerary-planner.html`).
+- Destination & travel dates selection.
+- Travel pace (Relaxed, Moderate, Adventure) and Interests (Heritage, Nature, Food, Photography).
+- Accommodation comfort tier selection (Budget, Standard, Luxury).
+- Day-by-day morning, afternoon, and evening activity builder with add/remove day controls.
+- Rule-based preference recommendation logic matching destination attractions.
+- Live dynamic cost estimator calculating activities, accommodation, and transport in real time.
+- Save custom itineraries to customer profile.
+- Clean printable voucher / PDF layout (`window.print()`).
+- Direct custom booking request submission to local tour providers.
 
 **Reservation & Booking Engine (Member 2)**
 - Step-by-step checkout: date picker from live availability, traveler count stepper, lead passenger form.
@@ -124,29 +152,84 @@ Open **http://localhost:3000**. The registration page is at **http://localhost:3
 | `POST` | `/api/reviews` | Submit a verified star review for a completed booking |
 | `GET` | `/api/packages/:id/reviews` | Package reviews with average rating and count |
 
-Provider package administration and availability endpoints are implemented in `server/server.js`.
+Provider package administration and availability endpoints are implemented in `server/server.js` and `server/member3_handlers.js`.
+
+### Member 3 Additional API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/login` | Multi-role user sign-in with audit activity logging |
+| `GET` | `/api/provider/packages` | List all packages for provider with itinerary, booking, and revenue counts |
+| `PUT` | `/api/provider/packages/:id` | Update package title, details, duration, price, capacity |
+| `DELETE` | `/api/provider/packages/:id` | Delete package or safely archive if bookings exist |
+| `GET` | `/api/provider/packages/:id/itinerary` | Get day-by-day itinerary schedule |
+| `POST` | `/api/provider/packages/:id/itinerary` | Add or update day activity |
+| `DELETE` | `/api/provider/itinerary/:id` | Remove itinerary day activity |
+| `GET` | `/api/provider/bookings` | Provider bookings list with customer details |
+| `PATCH` | `/api/provider/bookings/:id/status` | Update booking status (`CONFIRMED`, `COMPLETED`) |
+| `GET` | `/api/provider/reports` | Provider financial metrics and package performance |
+| `GET` | `/api/provider/custom-requests` | Inquiries submitted from Itinerary Planner |
+| `PATCH` | `/api/provider/custom-requests/:id/status`| Accept or reject custom inquiry |
+| `GET` | `/api/admin/dashboard` | Admin overview with package, user, and financial stats |
+| `GET` | `/api/admin/packages` | Filterable package list for quality moderation |
+| `PATCH` | `/api/admin/packages/:id/status` | Admin moderate package (`APPROVED`, `REJECTED`, `INACTIVE`) |
+| `GET`/`POST` | `/api/admin/destinations` | Destinations management (CRUD) |
+| `PUT`/`DELETE`| `/api/admin/destinations/:id` | Update / delete destination |
+| `GET`/`POST` | `/api/admin/categories` | Categories management (CRUD) |
+| `PUT`/`DELETE`| `/api/admin/categories/:id` | Update / delete category |
+| `GET` | `/api/admin/users` | List customer & provider accounts |
+| `PATCH` | `/api/admin/users/:id/status` | Approve provider, block/unblock user account |
+| `GET` | `/api/admin/reports` | Platform-wide financial reports & destination breakdown |
+| `GET`/`POST` | `/api/superadmin/admins` | List all administrators / create new administrator |
+| `PATCH` | `/api/superadmin/admins/:id/permissions`| Update admin access permissions |
+| `PATCH` | `/api/superadmin/admins/:id/status` | Block or unblock administrator |
+| `GET` | `/api/superadmin/logs` | Security activity audit trail (`system_logs`) |
+| `GET`/`POST` | `/api/customer/itineraries` | View customer saved itineraries / create custom plan |
+| `GET`/`DELETE`| `/api/customer/itineraries/:id`| Retrieve single plan / delete custom plan |
+| `POST` | `/api/customer/itineraries/:id/submit`| Submit custom plan request to local operator |
+
+### Demo Test Credentials for Presentation & Evaluation
+
+| Role | Email | Password | Direct Portal URL |
+|---|---|---|---|
+| **Customer** | `aarav@customer.in` | `demoPassword123` | [customer/itinerary-planner.html](http://localhost:3000/customer/itinerary-planner.html) |
+| **Tour Provider** | `heritage@roamly.in` | `demoPassword123` | [provider/dashboard.html](http://localhost:3000/provider/dashboard.html) |
+| **Administrator** | `admin@roamly.in` | `demoPassword123` | [admin/dashboard.html](http://localhost:3000/admin/dashboard.html) |
+| **Super Admin** | `superadmin@roamly.in` | `demoPassword123` | [superadmin/dashboard.html](http://localhost:3000/superadmin/dashboard.html) |
 
 ## Project Structure
 
 ```
 trip-planner/
-├── .env.example
+├── .env
 ├── package.json
 ├── database/
-│   ├── schema.sql              # MySQL schema
-│   └── seed-demo-data.sql      # Demo data
+│   ├── schema.sql              # MySQL schema (all tables + custom_itineraries)
+│   └── seed-demo-data.sql      # Seed data (users, packages, bookings, logs)
 ├── server/
-│   ├── server.js               # HTTP server and REST API
-│   ├── seed.js                 # Seed runner
+│   ├── server.js               # Pure Node.js HTTP server and router
+│   ├── member3_handlers.js     # Member 3 REST API handlers & audit logger
+│   ├── seed.js                 # Database seed runner
+│   ├── test_member3.js         # Automated backend test suite
 │   └── config/db.js            # MySQL connection pool
 └── public/
     ├── index.html, destinations.html, packages.html, package-details.html
     ├── login.html, register.html
-    ├── (provider dashboard pages)
-    ├── css/styles.css
+    ├── provider/
+    │   └── dashboard.html      # Provider Portal (Packages, Bookings, Requests, Reports)
+    ├── admin/
+    │   ├── dashboard.html      # Central Admin Console (Moderation, CRUD, Users, Reports)
+    │   └── admin.js            # Admin Controller
+    ├── superadmin/
+    │   ├── dashboard.html      # Super Admin Portal (Admins, Permissions, Audit Logs)
+    │   └── superadmin.js       # Super Admin Controller
+    ├── customer/
+    │   ├── booking.html        # Booking checkout
+    │   ├── my-bookings.html    # Customer booking history & reviews
+    │   └── itinerary-planner.html # Personalized Day-by-Day Itinerary Planner
+    ├── css/styles.css          # Design system & styles
     └── js/
-        ├── api.js, app.js, destinations.js
-        ├── packages.js, package-details.js
-        ├── register.js         # Registration validation and submit
-        └── (provider dashboard scripts)
+        ├── api.js, app.js, packages.js, register.js
+        ├── provider-dashboard.js   # Provider Portal controller
+        └── itinerary-planner.js    # Personalized Itinerary Planner controller
 ```

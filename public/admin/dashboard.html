@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal — Roamly Tourism Platform</title>
+  <meta name="description" content="Roamly Local Tourism Administration - Content moderation, catalog management, user accounts, and platform analytics.">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+  <style>
+    .admin-nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 2px solid var(--border-card);
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .admin-nav-tab {
+      padding: 0.75rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all var(--transition-fast);
+      margin-bottom: -2px;
+    }
+    .admin-nav-tab:hover {
+      color: var(--primary);
+    }
+    .admin-nav-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 700;
+      background: var(--bg-surface);
+      border-top-left-radius: var(--radius-sm);
+      border-top-right-radius: var(--radius-sm);
+    }
+    .tab-badge-pill {
+      background: #FEE2E2;
+      color: #991B1B;
+      padding: 0.15rem 0.55rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .admin-quick-action-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-xs);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="../index.html" class="brand-logo">
+        <div class="brand-icon">🛡️</div>
+        <span>Roamly <span style="font-size: 0.8rem; font-family: var(--font-sans); color: #B91C1C; font-weight: 700; text-transform: uppercase; margin-left: 0.2rem;">Admin</span></span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="dashboard.html" class="active" style="color: var(--primary); font-weight: 700;">Admin Console</a>
+        <a href="../superadmin/dashboard.html">Super Admin View</a>
+        <a href="../provider/dashboard.html">Provider Portal</a>
+        <a href="../packages.html">Catalog</a>
+      </nav>
+
+      <div class="nav-actions">
+        <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-right: 0.5rem;" id="admin-user-display">
+          Anita Desai (Admin)
+        </span>
+        <a href="../login.html" class="btn btn-outline btn-sm">Sign Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="provider-portal-container">
+    <div class="container">
+
+      <!-- Header -->
+      <div class="provider-topbar">
+        <div class="provider-brand-heading">
+          <div class="provider-portal-tag" style="color: #991B1B;">
+            <span>⚖️</span> Member 3 — Central Administration Console
+          </div>
+          <h1 class="provider-portal-title">Platform Administration</h1>
+          <p class="provider-portal-subtitle">
+            Moderate tour packages, maintain destinations & categories, manage user access, and inspect platform reports.
+          </p>
+        </div>
+
+        <div class="provider-account-panel">
+          <div class="provider-avatar-circle" style="background: #FEE2E2; color: #991B1B;">A</div>
+          <div class="provider-identity-meta">
+            <div class="provider-identity-name">Anita Desai</div>
+            <div class="provider-identity-role">
+              <span>admin@roamly.in</span>
+              <span>•</span>
+              <span style="color: #991B1B; font-weight: 700;">System Administrator</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs across Admin Sections -->
+      <div class="admin-nav-tabs" role="tablist">
+        <button type="button" class="admin-nav-tab active" data-view="overview" id="tab-nav-overview">
+          <span>📊</span>
+          <span>Overview</span>
+        </button>
+        <button type="button" class="admin-nav-tab" data-view="moderation" id="tab-nav-moderation">
+          <span>🛡️</span>
+          <span>Package Moderation</span>
+          <span class="tab-badge-pill" id="badge-pending-moderation">0</span>
+        </button>
+        <button type="button" class="admin-nav-tab" data-view="destinations" id="tab-nav-destinations">
+          <span>📍</span>
+          <span>Destinations</span>
+        </button>
+        <button type="button" class="admin-nav-tab" data-view="categories" id="tab-nav-categories">
+          <span>🏷️</span>
+          <span>Categories</span>
+        </button>
+        <button type="button" class="admin-nav-tab" data-view="users" id="tab-nav-users">
+          <span>👥</span>
+          <span>User Accounts</span>
+          <span class="tab-badge-pill" id="badge-pending-providers" style="display: none;">0</span>
+        </button>
+        <button type="button" class="admin-nav-tab" data-view="reports" id="tab-nav-reports">
+          <span>📈</span>
+          <span>Platform Reports</span>
+        </button>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW 1: OVERVIEW DASHBOARD -->
+      <!-- ============================================== -->
+      <div id="view-overview" class="admin-view-panel">
+        <section class="provider-stats-grid">
+          <div class="provider-stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Pending Packages</span>
+              <div class="stat-card-icon">⏳</div>
+            </div>
+            <div class="stat-card-value" id="stat-pending-pkgs">0</div>
+            <div class="stat-card-caption">Tour packages awaiting review</div>
+          </div>
+
+          <div class="provider-stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Published Packages</span>
+              <div class="stat-card-icon">✅</div>
+            </div>
+            <div class="stat-card-value" id="stat-published-pkgs">0</div>
+            <div class="stat-card-caption">Live on public discovery</div>
+          </div>
+
+          <div class="provider-stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Pending Providers</span>
+              <div class="stat-card-icon">🏢</div>
+            </div>
+            <div class="stat-card-value" id="stat-pending-provs">0</div>
+            <div class="stat-card-caption">New provider registrations to approve</div>
+          </div>
+
+          <div class="provider-stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Platform Revenue</span>
+              <div class="stat-card-icon">💰</div>
+            </div>
+            <div class="stat-card-value" id="stat-platform-revenue">₹0</div>
+            <div class="stat-card-caption">Total booking volume to date</div>
+          </div>
+        </section>
+
+        <!-- Quick Moderation Queues -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+          
+          <!-- Urgent Packages -->
+          <div class="admin-quick-action-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="font-size: 1.1rem; color: var(--primary);">⏳ Packages Requiring Moderation</h3>
+              <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('tab-nav-moderation').click()">View All</button>
+            </div>
+            <div id="overview-pending-pkgs-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Urgent Providers -->
+          <div class="admin-quick-action-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="font-size: 1.1rem; color: var(--primary);">🏢 Provider Approvals Queue</h3>
+              <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('tab-nav-users').click()">Manage Users</button>
+            </div>
+            <div id="overview-pending-provs-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW 2: PACKAGE MODERATION -->
+      <!-- ============================================== -->
+      <div id="view-moderation" class="admin-view-panel" style="display: none;">
+        <section class="provider-content-card">
+          <div class="provider-content-header">
+            <div class="provider-content-title-box">
+              <h2>Package Moderation & Quality Control</h2>
+              <p>Review tour submissions from regional providers. Approve, reject, or pause packages.</p>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-packages">🔄 Refresh</button>
+          </div>
+
+          <div class="provider-filter-toolbar">
+            <div class="provider-status-tabs" id="pkg-moderation-tabs">
+              <button type="button" class="status-tab-btn active" data-status="ALL">All Packages</button>
+              <button type="button" class="status-tab-btn" data-status="PENDING">Pending Review</button>
+              <button type="button" class="status-tab-btn" data-status="APPROVED">Approved / Live</button>
+              <button type="button" class="status-tab-btn" data-status="REJECTED">Rejected</button>
+              <button type="button" class="status-tab-btn" data-status="INACTIVE">Inactive</button>
+            </div>
+
+            <div class="provider-search-box">
+              <span class="provider-search-icon">🔍</span>
+              <input type="text" id="admin-pkg-search" class="provider-search-input" placeholder="Search by title, destination, or provider…">
+            </div>
+          </div>
+
+          <div class="provider-table-wrapper">
+            <table class="provider-table" aria-label="Moderation Table">
+              <thead>
+                <tr>
+                  <th>Package Title</th>
+                  <th>Tour Provider</th>
+                  <th>Destination & Category</th>
+                  <th>Duration & Capacity</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th style="text-align: right; padding-right: 1.5rem;">Moderation Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-packages-table-body">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW 3: DESTINATIONS MANAGEMENT (CRUD) -->
+      <!-- ============================================== -->
+      <div id="view-destinations" class="admin-view-panel" style="display: none;">
+        <section class="provider-content-card">
+          <div class="provider-content-header">
+            <div class="provider-content-title-box">
+              <h2>Destination Directory</h2>
+              <p>Manage supported regional travel destinations across India</p>
+            </div>
+            <div class="provider-actions-row">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-open-create-destination">+ Add Destination</button>
+            </div>
+          </div>
+
+          <div class="provider-table-wrapper">
+            <table class="provider-table" aria-label="Destinations Table">
+              <thead>
+                <tr>
+                  <th>Destination Name</th>
+                  <th>City & State</th>
+                  <th>Country</th>
+                  <th>Packages Count</th>
+                  <th>Status</th>
+                  <th style="text-align: right; padding-right: 1.5rem;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="destinations-table-body">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW 4: CATEGORIES MANAGEMENT (CRUD) -->
+      <!-- ============================================== -->
+      <div id="view-categories" class="admin-view-panel" style="display: none;">
+        <section class="provider-content-card">
+          <div class="provider-content-header">
+            <div class="provider-content-title-box">
+              <h2>Tour Categories</h2>
+              <p>Manage tour themes (Heritage, Nature, Coastal, Adventure, Spiritual)</p>
+            </div>
+            <div class="provider-actions-row">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-open-create-category">+ Add Category</button>
+            </div>
+          </div>
+
+          <div class="provider-table-wrapper">
+            <table class="provider-table" aria-label="Categories Table">
+              <thead>
+                <tr>
+                  <th>Category Name</th>
+                  <th>Description</th>
+                  <th>Linked Packages</th>
+                  <th>Status</th>
+                  <th style="text-align: right; padding-right: 1.5rem;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="categories-table-body">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW 5: USER ACCOUNT MANAGEMENT -->
+      <!-- ============================================== -->
+      <div id="view-users" class="admin-view-panel" style="display: none;">
+        <section class="provider-content-card">
+          <div class="provider-content-header">
+            <div class="provider-content-title-box">
+              <h2>User & Provider Accounts</h2>
+              <p>Verify new tour operators, manage customer accounts, and block/unblock users</p>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-users">🔄 Refresh</button>
+          </div>
+
+          <div class="provider-filter-toolbar">
+            <div class="provider-status-tabs" id="user-role-tabs">
+              <button type="button" class="status-tab-btn active" data-urole="ALL">All Accounts</button>
+              <button type="button" class="status-tab-btn" data-urole="PROVIDER">Tour Providers</button>
+              <button type="button" class="status-tab-btn" data-urole="CUSTOMER">Customers</button>
+            </div>
+
+            <div class="provider-search-box">
+              <span class="provider-search-icon">🔍</span>
+              <input type="text" id="admin-user-search" class="provider-search-input" placeholder="Search by name, email, or mobile…">
+            </div>
+          </div>
+
+          <div class="provider-table-wrapper">
+            <table class="provider-table" aria-label="Users Table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Name & Contact</th>
+                  <th>Role</th>
+                  <th>Activity / Volume</th>
+                  <th>Status</th>
+                  <th>Joined Date</th>
+                  <th style="text-align: right; padding-right: 1.5rem;">Account Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW 6: SYSTEM-WIDE REPORTS -->
+      <!-- ============================================== -->
+      <div id="view-reports" class="admin-view-panel" style="display: none;">
+        <section class="provider-stats-grid">
+          <div class="provider-stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Total Bookings</span>
+              <div class="stat-card-icon">📑</div>
+            </div>
+            <div class="stat-card-value" id="report-total-bookings">0</div>
+            <div class="stat-card-caption">All reservations processed</div>
+          </div>
+
+          <div class="provider-stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Gross Platform Revenue</span>
+              <div class="stat-card-icon">💳</div>
+            </div>
+            <div class="stat-card-value" id="report-gross-revenue">₹0</div>
+            <div class="stat-card-caption">Total booking volume (INR)</div>
+          </div>
+
+          <div class="provider-stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Active Providers</span>
+              <div class="stat-card-icon">🏢</div>
+            </div>
+            <div class="stat-card-value" id="report-active-providers">0</div>
+            <div class="stat-card-caption">Verified local operators</div>
+          </div>
+
+          <div class="provider-stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Registered Customers</span>
+              <div class="stat-card-icon">👤</div>
+            </div>
+            <div class="stat-card-value" id="report-total-customers">0</div>
+            <div class="stat-card-caption">Traveler member accounts</div>
+          </div>
+        </section>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          
+          <!-- Destination Breakdown -->
+          <div class="admin-quick-action-card">
+            <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem;">Revenue by Destination</h3>
+            <table class="provider-table">
+              <thead>
+                <tr>
+                  <th>Destination</th>
+                  <th>State</th>
+                  <th>Bookings</th>
+                  <th>Revenue</th>
+                </tr>
+              </thead>
+              <tbody id="report-dest-table-body"></tbody>
+            </table>
+          </div>
+
+          <!-- Top Providers -->
+          <div class="admin-quick-action-card">
+            <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem;">Top Tour Providers</h3>
+            <table class="provider-table">
+              <thead>
+                <tr>
+                  <th>Provider Name</th>
+                  <th>Packages</th>
+                  <th>Bookings</th>
+                  <th>Revenue</th>
+                </tr>
+              </thead>
+              <tbody id="report-prov-table-body"></tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============================================== -->
+  <!-- MODAL: ADD / EDIT DESTINATION -->
+  <!-- ============================================== -->
+  <div id="dest-modal" class="provider-modal-backdrop" role="dialog" aria-modal="true">
+    <div class="provider-modal-dialog">
+      <div class="provider-modal-header">
+        <div>
+          <h3 id="dest-modal-title">Add New Destination</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-dest-modal">&times;</button>
+      </div>
+
+      <form id="dest-form">
+        <input type="hidden" id="dest-id">
+        <div class="provider-modal-body" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label" for="dest-name">Destination Name *</label>
+            <input class="form-input" type="text" id="dest-name" required placeholder="e.g. Mysore Royal Heritage">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="dest-city">City *</label>
+              <input class="form-input" type="text" id="dest-city" required placeholder="e.g. Mysuru">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="dest-state">State *</label>
+              <input class="form-input" type="text" id="dest-state" required placeholder="e.g. Karnataka">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="dest-desc">Description</label>
+            <textarea class="form-input" id="dest-desc" rows="3" placeholder="Overview of regional attractions, landscape, and heritage…"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="dest-status">Status</label>
+            <select class="form-input" id="dest-status">
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+            </select>
+          </div>
+        </div>
+        <div class="provider-modal-footer">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-dest">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Save Destination</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: ADD / EDIT CATEGORY -->
+  <!-- ============================================== -->
+  <div id="cat-modal" class="provider-modal-backdrop" role="dialog" aria-modal="true">
+    <div class="provider-modal-dialog">
+      <div class="provider-modal-header">
+        <div>
+          <h3 id="cat-modal-title">Add New Category</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-cat-modal">&times;</button>
+      </div>
+
+      <form id="cat-form">
+        <input type="hidden" id="cat-id">
+        <div class="provider-modal-body" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label" for="cat-name">Category Name *</label>
+            <input class="form-input" type="text" id="cat-name" required placeholder="e.g. Culinary & Street Food">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cat-desc">Description</label>
+            <textarea class="form-input" id="cat-desc" rows="3" placeholder="Category theme description…"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cat-status">Status</label>
+            <select class="form-input" id="cat-status">
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+            </select>
+          </div>
+        </div>
+        <div class="provider-modal-footer">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-cat">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Save Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="provider-toast-box" class="provider-toast-box" aria-live="polite"></div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System.</div>
+      <div>Member 3: Administrator Console</div>
+    </div>
+  </footer>
+
+  <script src="admin.js"></script>
+</body>
+</html>
+

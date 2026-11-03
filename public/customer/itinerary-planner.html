@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personalized Itinerary Planner — Roamly</title>
+  <meta name="description" content="Design your custom dream trip: destination, pace, interests, day-by-day morning/afternoon/evening activity builder, and live cost estimator.">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺️</text></svg>">
+  <style>
+    .planner-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2rem;
+      align-items: flex-start;
+      margin-top: 1.5rem;
+    }
+    @media (max-width: 960px) {
+      .planner-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+    .planner-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-card);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-xs);
+    }
+    .selection-pill-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 0.65rem;
+      margin-top: 0.5rem;
+    }
+    .selection-pill-label {
+      border: 1px solid var(--border-card);
+      background: var(--bg-surface-soft);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.8rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all var(--transition-fast);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .selection-pill-label input {
+      display: none;
+    }
+    .selection-pill-label:hover {
+      border-color: var(--primary);
+    }
+    .selection-pill-label.is-selected {
+      background: var(--primary-subtle);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .day-builder-card {
+      background: var(--bg-surface-soft);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+    .day-builder-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-card);
+    }
+    .time-slot-box {
+      margin-bottom: 0.85rem;
+    }
+    .time-slot-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--sage-dark);
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .time-slot-input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.88rem;
+    }
+    .time-slot-input:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+    .live-cost-sidebar {
+      position: sticky;
+      top: 100px;
+    }
+    .cost-summary-box {
+      background: var(--bg-surface);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+    }
+    .cost-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.45rem 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .cost-total-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.85rem;
+      margin-top: 0.85rem;
+      border-top: 2px dashed var(--border-card);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    /* Printable styling */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-itinerary-area, #printable-itinerary-area * {
+        visibility: visible;
+      }
+      #printable-itinerary-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #fff;
+        padding: 2rem;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="site-header no-print">
+    <div class="container nav-container">
+      <a href="../index.html" class="brand-logo">
+        <div class="brand-icon">🧭</div>
+        <span>Roamly</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="../packages.html">Explore Tours</a>
+        <a href="../destinations.html">Destinations</a>
+        <a href="itinerary-planner.html" class="active" style="color: var(--primary); font-weight: 700;">Itinerary Planner</a>
+        <a href="my-bookings.html">My Bookings</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-saved-drawer">
+          📂 Saved Plans (<span id="saved-plans-count">0</span>)
+        </button>
+        <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);" id="user-display">
+          Aarav Sharma
+        </span>
+        <a href="../login.html" class="btn btn-outline btn-sm">Sign Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 2rem 1rem 4rem;">
+    
+    <!-- Hero / Title -->
+    <div class="no-print" style="margin-bottom: 2rem;">
+      <div class="provider-portal-tag" style="margin-bottom: 0.35rem;">
+        <span>🗺️</span> Member 3 — Personalized Itinerary Planner
+      </div>
+      <h1 style="font-family: var(--font-serif); font-size: 2.2rem; color: var(--primary); margin-bottom: 0.4rem;">
+        Craft Your Personalized Tour Itinerary
+      </h1>
+      <p style="color: var(--text-secondary); max-width: 650px;">
+        Pick your destination, select your travel pace and interests, build your custom day-by-day morning/afternoon/evening schedule, estimate total costs in real time, and submit your plan directly to certified local operators.
+      </p>
+    </div>
+
+    <!-- Main 2-Column Planner Layout -->
+    <div class="planner-layout">
+      
+      <!-- Left Column: Preference Form & Day-by-Day Builder -->
+      <div id="printable-itinerary-area">
+        
+        <!-- Printable Header (shown only when printing) -->
+        <div class="print-only" style="display: none; border-bottom: 2px solid #183B2B; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+          <h1 style="font-size: 1.8rem; color: #183B2B; margin: 0;">🧭 Roamly Custom Tour Itinerary</h1>
+          <p style="color: #666; margin-top: 0.25rem;">Personalized Travel Plan • Customer Voucher</p>
+        </div>
+
+        <!-- 1. Destination & Dates Selection Card -->
+        <div class="planner-card no-print">
+          <h2 style="font-size: 1.2rem; color: var(--primary); margin-bottom: 1rem;">1. Destination &amp; Travel Dates</h2>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="plan-destination">Select Destination *</label>
+              <select class="form-input" id="plan-destination" required>
+                <!-- Populated dynamically via /api/destinations -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="plan-start-date">Travel Start Date *</label>
+              <input class="form-input" type="date" id="plan-start-date" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="plan-duration">Duration (Days)</label>
+              <input class="form-input" type="number" id="plan-duration" min="1" max="14" value="3" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="plan-travelers">Travelers Count</label>
+              <input class="form-input" type="number" id="plan-travelers" min="1" max="20" value="2" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Travel Style & Preferences -->
+        <div class="planner-card no-print">
+          <h2 style="font-size: 1.2rem; color: var(--primary); margin-bottom: 1rem;">2. Travel Style &amp; Interests</h2>
+          
+          <!-- Travel Pace -->
+          <div style="margin-bottom: 1.25rem;">
+            <label class="form-label">Travel Pace:</label>
+            <div class="selection-pill-grid" id="pace-selector">
+              <label class="selection-pill-label is-selected">
+                <input type="radio" name="travel_pace" value="Relaxed" checked>
+                <span style="font-size: 1.2rem;">☕</span>
+                <span>Relaxed</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Leisurely sightseeing</span>
+              </label>
+              <label class="selection-pill-label">
+                <input type="radio" name="travel_pace" value="Moderate">
+                <span style="font-size: 1.2rem;">🚶‍♂️</span>
+                <span>Moderate</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Balanced highlights</span>
+              </label>
+              <label class="selection-pill-label">
+                <input type="radio" name="travel_pace" value="Adventure">
+                <span style="font-size: 1.2rem;">🧗‍♀️</span>
+                <span>Adventure</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Action &amp; treks</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Interests Selection -->
+          <div style="margin-bottom: 1.25rem;">
+            <label class="form-label">Interests (Select all that apply):</label>
+            <div class="selection-pill-grid" id="interests-selector">
+              <label class="selection-pill-label is-selected">
+                <input type="checkbox" name="interest" value="Heritage" checked>
+                <span>🏛️ Heritage</span>
+              </label>
+              <label class="selection-pill-label is-selected">
+                <input type="checkbox" name="interest" value="Nature" checked>
+                <span>🌿 Nature</span>
+              </label>
+              <label class="selection-pill-label is-selected">
+                <input type="checkbox" name="interest" value="Food" checked>
+                <span>🍲 Local Food</span>
+              </label>
+              <label class="selection-pill-label">
+                <input type="checkbox" name="interest" value="Photography">
+                <span>📸 Photography</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Accommodation Tier -->
+          <div>
+            <label class="form-label">Accommodation Comfort Tier:</label>
+            <div class="selection-pill-grid" id="tier-selector">
+              <label class="selection-pill-label">
+                <input type="radio" name="accommodation_tier" value="Budget">
+                <span style="font-size: 1.2rem;">🏡</span>
+                <span>Budget</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Homestays &amp; hostels</span>
+              </label>
+              <label class="selection-pill-label is-selected">
+                <input type="radio" name="accommodation_tier" value="Standard" checked>
+                <span style="font-size: 1.2rem;">🏨</span>
+                <span>Standard</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Comfortable 3★ hotels</span>
+              </label>
+              <label class="selection-pill-label">
+                <input type="radio" name="accommodation_tier" value="Luxury">
+                <span style="font-size: 1.2rem;">✨</span>
+                <span>Luxury</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">4★/5★ Heritage resorts</span>
+              </label>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.25rem; text-align: right;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-auto-suggest">
+              🪄 Auto-Suggest Daily Activities
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Day-by-Day Itinerary Builder -->
+        <div class="planner-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h2 style="font-size: 1.2rem; color: var(--primary);">3. Day-by-Day Activity Schedule</h2>
+              <p style="font-size: 0.85rem; color: var(--text-secondary);">Customize morning, afternoon, and evening experiences for each day</p>
+            </div>
+            <div class="no-print">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-add-day">+ Add Day</button>
+            </div>
+          </div>
+
+          <!-- Title for Itinerary -->
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label" for="plan-title">Trip Title *</label>
+            <input class="form-input" type="text" id="plan-title" value="My Custom Dream Holiday" placeholder="e.g. Serene Backwaters & Spice Trails Getaway" required>
+          </div>
+
+          <!-- Dynamic Container for Day Cards -->
+          <div id="days-container">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Traveler Notes -->
+          <div class="form-group" style="margin-top: 1.5rem;">
+            <label class="form-label" for="plan-notes">Special Requests &amp; Notes</label>
+            <textarea class="form-input" id="plan-notes" rows="2" placeholder="e.g. Vegetarian meals requested, require airport pickup, prefer ground floor rooms…"></textarea>
+          </div>
+        </div>
+
+        <!-- Submit to Provider Card -->
+        <div class="planner-card no-print">
+          <h2 style="font-size: 1.2rem; color: var(--primary); margin-bottom: 0.5rem;">Submit to Local Tour Operator</h2>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1rem;">
+            Choose a verified local operator to receive your itinerary, review feasibility, and arrange your custom package.
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: flex-end;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="provider-select-submit">Local Tour Provider</label>
+              <select class="form-input" id="provider-select-submit">
+                <!-- Populated via /api/providers -->
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-submit-provider" style="height: 42px;">
+              📤 Submit Request
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Live Cost Estimator Sidebar -->
+      <aside class="live-cost-sidebar no-print">
+        <div class="cost-summary-box">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+            <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--sage-dark); letter-spacing: 0.05em;">
+              Live Cost Estimator
+            </span>
+            <span>💡</span>
+          </div>
+
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+            Calculated dynamically based on days, travelers, comfort tier, and pace.
+          </div>
+
+          <div class="cost-line">
+            <span>Duration:</span>
+            <span id="cost-disp-days" style="font-weight: 600;">3 Days</span>
+          </div>
+
+          <div class="cost-line">
+            <span>Travelers:</span>
+            <span id="cost-disp-travelers" style="font-weight: 600;">2 Travelers</span>
+          </div>
+
+          <div class="cost-line">
+            <span>Activities &amp; Guiding:</span>
+            <span id="cost-disp-activities" style="font-weight: 600;">₹15,000</span>
+          </div>
+
+          <div class="cost-line">
+            <span>Accommodation (<span id="cost-disp-tier">Standard</span>):</span>
+            <span id="cost-disp-hotel" style="font-weight: 600;">₹9,600</span>
+          </div>
+
+          <div class="cost-line">
+            <span>Local Transport &amp; Transfers:</span>
+            <span id="cost-disp-transport" style="font-weight: 600;">₹3,600</span>
+          </div>
+
+          <div class="cost-total-line">
+            <span>Estimated Total:</span>
+            <span id="cost-disp-total">₹28,200</span>
+          </div>
+
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center;">
+            *Approximate quotation. Final rates subject to seasonal operator confirmation.
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: 1.5rem;">
+            <button type="button" class="btn btn-primary" id="btn-save-itinerary" style="width: 100%;">
+              💾 Save to My Profile
+            </button>
+            <button type="button" class="btn btn-outline" id="btn-print-itinerary" style="width: 100%;">
+              🖨️ Print / Download PDF
+            </button>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+  </main>
+
+  <!-- SAVED ITINERARIES DRAWER / MODAL -->
+  <div id="saved-itineraries-modal" class="provider-modal-backdrop" role="dialog" aria-modal="true">
+    <div class="provider-modal-dialog" style="max-width: 650px;">
+      <div class="provider-modal-header">
+        <div>
+          <h3>Your Saved Itineraries</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
+            Review or load your personalized itineraries
+          </p>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-saved-drawer">&times;</button>
+      </div>
+
+      <div class="provider-modal-body" id="saved-itineraries-list" style="max-height: 400px; overflow-y: auto;">
+        <!-- Populated via JS -->
+      </div>
+
+      <div class="provider-modal-footer">
+        <button type="button" class="btn btn-outline btn-sm" id="btn-done-saved-drawer">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Alerts -->
+  <div id="provider-toast-box" class="provider-toast-box" aria-live="polite"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer no-print">
+    <div class="container footer-bottom">
+      <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System.</div>
+      <div>Member 3: Personalized Itinerary Planner</div>
+    </div>
+  </footer>
+
+  <script src="../js/itinerary-planner.js"></script>
+</body>
+</html>
+
