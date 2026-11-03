@@ -104,3 +104,10 @@ INSERT IGNORE INTO package_availability (package_id, available_date, seats_avail
 (6, '2026-11-18', 14, 'AVAILABLE'),
 (7, '2026-11-14', 8, 'AVAILABLE'),
 (8, '2026-11-22', 12, 'AVAILABLE');
+
+-- 7. Coupons (Member 2)
+INSERT IGNORE INTO coupons (coupon_id, code, description, discount_type, discount_value, min_booking_amount, max_discount, valid_until, status) VALUES
+(1, 'EXPLORE10', '10% discount on all local tourism packages', 'PERCENT', 10.00, 5000.00, 3000.00, '2028-12-31', 'ACTIVE'),
+(2, 'FESTIVE25', '25% festive discount for family & group trips', 'PERCENT', 25.00, 15000.00, 6000.00, '2028-12-31', 'ACTIVE'),
+(3, 'ROAMLY1000', 'Flat ₹1,000 instant savings on premium tours', 'FLAT', 1000.00, 10000.00, 1000.00, '2028-12-31', 'ACTIVE'),
+(4, 'EARLYBIRD', '15% early bird booking discount', 'PERCENT', 15.00, 8000.00, 3500.00, '2028-12-31', 'ACTIVE');

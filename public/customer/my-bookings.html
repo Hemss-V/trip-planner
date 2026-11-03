@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Bookings — Roamly Local Tourism</title>
+  <meta name="description" content="View your booked tour packages, manage upcoming travel departures, download tickets, cancel bookings, and share verified reviews on Roamly.">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+</head>
+<body style="background-color: var(--bg-primary);">
+
+  <!-- Navigation Bar -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="../index.html" class="brand-logo">
+        <div class="brand-icon">🧭</div>
+        <span>Roamly <span style="font-size: 0.8rem; font-family: var(--font-sans); color: var(--sage-dark); font-weight: 600; text-transform: uppercase; margin-left: 0.2rem;">Traveler</span></span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="../packages.html">Explore Catalog</a>
+        <a href="../destinations.html">Destinations</a>
+        <a href="my-bookings.html" class="active" style="color: var(--primary); font-weight: 700;">My Bookings</a>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Customer Account Switcher for Demo Evaluation -->
+        <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-surface); padding: 0.35rem 0.75rem; border-radius: var(--radius-pill); border: 1px solid var(--border-card); font-size: 0.85rem;">
+          <span style="font-size: 1rem;">👤</span>
+          <label for="history-customer-select" style="font-weight: 600; color: var(--text-secondary); margin-right: 0.25rem;">Traveler:</label>
+          <select id="history-customer-select" class="provider-switch-select" style="padding: 0.2rem 0.5rem; font-size: 0.82rem; border-radius: var(--radius-sm);" title="Switch customer profile">
+            <option value="3" selected>Aarav Sharma (Customer)</option>
+            <option value="4">Priya Nair (Customer)</option>
+          </select>
+        </div>
+
+        <a href="../packages.html" class="btn btn-primary btn-sm">+ Book New Trip</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- My Bookings Content -->
+  <main class="my-bookings-container" style="padding: 2.5rem 0 5rem;">
+    <div class="container">
+      
+      <!-- Top Title Bar -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+          <span class="section-tag">Member 2 — Customer Booking History & Feedback</span>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; color: var(--primary); margin: 0.25rem 0 0.4rem;">
+            My Travel Reservations
+          </h1>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">
+            Track your upcoming departures, manage tickets, submit verified traveler ratings, and cancel reservations.
+          </p>
+        </div>
+
+        <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-history" title="Reload bookings from MySQL">
+          🔄 Refresh Bookings
+        </button>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <section class="provider-stats-grid" style="margin-bottom: 2rem;">
+        <div class="provider-stat-card stat-card-total">
+          <div class="stat-card-top">
+            <span class="stat-card-label">Total Reservations</span>
+            <div class="stat-card-icon">🎫</div>
+          </div>
+          <div class="stat-card-value" id="metric-total-bookings">0</div>
+          <div class="stat-card-caption">All trips booked through your account</div>
+        </div>
+
+        <div class="provider-stat-card stat-card-approved">
+          <div class="stat-card-top">
+            <span class="stat-card-label">Confirmed / Upcoming</span>
+            <div class="stat-card-icon">🛫</div>
+          </div>
+          <div class="stat-card-value" id="metric-upcoming-bookings">0</div>
+          <div class="stat-card-caption">Seats confirmed & ready for departure</div>
+        </div>
+
+        <div class="provider-stat-card stat-card-other">
+          <div class="stat-card-top">
+            <span class="stat-card-label">Cancelled / Refunded</span>
+            <div class="stat-card-icon">🚫</div>
+          </div>
+          <div class="stat-card-value" id="metric-cancelled-bookings">0</div>
+          <div class="stat-card-caption">Trips cancelled & seats restocked</div>
+        </div>
+
+        <div class="provider-stat-card stat-card-total">
+          <div class="stat-card-top">
+            <span class="stat-card-label">Total Investment</span>
+            <div class="stat-card-icon">💰</div>
+          </div>
+          <div class="stat-card-value" id="metric-total-spent" style="font-size: 1.85rem;">₹0</div>
+          <div class="stat-card-caption">Total payment recorded in MySQL</div>
+        </div>
+      </section>
+
+      <!-- Bookings Content Card -->
+      <section class="provider-content-card">
+        
+        <!-- Filter Tabs Toolbar -->
+        <div class="provider-filter-toolbar">
+          <div class="provider-status-tabs" role="tablist">
+            <button type="button" class="status-tab-btn active" data-tab="all">
+              <span>All Bookings</span>
+              <span class="status-tab-badge" id="tab-count-all">0</span>
+            </button>
+            <button type="button" class="status-tab-btn" data-tab="CONFIRMED">
+              <span>Confirmed Trips</span>
+              <span class="status-tab-badge" id="tab-count-confirmed">0</span>
+            </button>
+            <button type="button" class="status-tab-btn" data-tab="COMPLETED">
+              <span>Completed</span>
+              <span class="status-tab-badge" id="tab-count-completed">0</span>
+            </button>
+            <button type="button" class="status-tab-btn" data-tab="CANCELLED">
+              <span>Cancelled</span>
+              <span class="status-tab-badge" id="tab-count-cancelled">0</span>
+            </button>
+          </div>
+
+          <div style="font-size: 0.86rem; color: var(--text-muted);" id="bookings-count-label">
+            Showing all bookings
+          </div>
+        </div>
+
+        <!-- Bookings Container -->
+        <div id="bookings-list-container" style="padding: 1.5rem;">
+          <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🧭</div>
+            Loading your bookings from MySQL...
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="bookings-empty-state" style="padding: 4rem 1.5rem; text-align: center;" hidden>
+          <div style="font-size: 3rem; margin-bottom: 0.75rem;">🏝️</div>
+          <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--primary); margin-bottom: 0.4rem;">
+            No bookings found
+          </h3>
+          <p style="color: var(--text-secondary); max-width: 440px; margin: 0 auto 1.5rem; font-size: 0.92rem;">
+            You haven't reserved any local tour packages under this category yet. Explore India's top regional experiences today!
+          </p>
+          <a href="../packages.html" class="btn btn-primary btn-sm">Browse Tour Packages</a>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Review Submission Modal -->
+  <div id="review-modal" class="provider-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
+    <div class="provider-modal-dialog">
+      <div class="provider-modal-header">
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--sage-dark); letter-spacing: 0.05em;">
+            Post-Trip Feedback
+          </span>
+          <h3 id="review-modal-title">Write a Verified Review</h3>
+          <p id="review-pkg-title" style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 0.2rem;"></p>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-review-modal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="review-form">
+        <div class="provider-modal-body" style="display: flex; flex-direction: column; gap: 1.25rem;">
+          
+          <div>
+            <label style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; color: var(--text-primary);">
+              Your Rating (1 to 5 Stars) *
+            </label>
+            <div class="star-rating-picker" id="star-picker">
+              <span class="star-item" data-value="1">★</span>
+              <span class="star-item" data-value="2">★</span>
+              <span class="star-item" data-value="3">★</span>
+              <span class="star-item" data-value="4">★</span>
+              <span class="star-item active" data-value="5">★</span>
+            </div>
+            <input type="hidden" id="review-rating-val" value="5">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="review-comment">Share Your Experience *</label>
+            <textarea 
+              class="form-input" 
+              id="review-comment" 
+              rows="4" 
+              placeholder="What was the highlight of your tour? How was your local guide, meals, and accommodations?" 
+              required 
+              minlength="5"
+            ></textarea>
+            <p class="form-hint">Your review will be displayed publicly on the tour details page to help future travelers.</p>
+          </div>
+
+        </div>
+
+        <div class="provider-modal-footer">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-review">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Submit Verified Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cancellation Confirmation Modal -->
+  <div id="cancel-modal" class="provider-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="cancel-modal-title">
+    <div class="provider-modal-dialog" style="max-width: 480px;">
+      <div class="provider-modal-header">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span style="font-size: 1.5rem;">⚠️</span>
+          <h3 id="cancel-modal-title" style="color: #C62828;">Cancel Reservation?</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-cancel-modal">&times;</button>
+      </div>
+
+      <div class="provider-modal-body">
+        <p style="color: var(--text-primary); font-size: 0.95rem; margin-bottom: 1rem;">
+          Are you sure you want to cancel booking <strong id="cancel-modal-ref">ROAM-000000</strong> for <strong id="cancel-modal-pkg">Tour Package</strong>?
+        </p>
+        <div style="background: #FFF3E0; border: 1px solid #FFE0B2; padding: 0.85rem 1rem; border-radius: var(--radius-sm); font-size: 0.86rem; color: #E65100; margin-bottom: 1rem;">
+          ℹ️ Your <span id="cancel-modal-seats">0</span> reserved seats will be instantly restored to the public departure calendar, and a full refund will be marked in MySQL `payments`.
+        </div>
+      </div>
+
+      <div class="provider-modal-footer">
+        <button type="button" class="btn btn-outline btn-sm" id="btn-abort-cancel">Keep Booking</button>
+        <button type="button" class="btn btn-sm" id="btn-confirm-cancel" style="background: #C62828; color: #fff; border: none;">
+          Yes, Cancel Booking
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="history-toast-box" class="provider-toast-box" aria-live="polite"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System.</div>
+      <div>Member 2: Booking Engine, Payments, Cancellations & Reviews</div>
+    </div>
+  </footer>
+
+  <!-- Script Controller -->
+  <script src="../js/my-bookings.js"></script>
+</body>
+</html>
+

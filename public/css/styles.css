@@ -2336,3 +2336,525 @@ select.filter-control {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================
+   Member 2: Booking, Payments, Coupons & History Styles
+   ========================================== */
+
+/* Booking Checkout Grid */
+.booking-checkout-container {
+  min-height: calc(100vh - var(--nav-height) - 150px);
+}
+
+.booking-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 0.9fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.booking-form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.checkout-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-card);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow var(--transition-fast);
+}
+
+.checkout-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.checkout-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.step-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.checkout-step-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+.checkout-step-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* Date Chips */
+.date-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 0.85rem;
+}
+
+.date-chip-option {
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem;
+  cursor: pointer;
+  background: var(--bg-surface-soft);
+  transition: all var(--transition-fast);
+  display: block;
+}
+
+.date-chip-option:hover {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+}
+
+.date-chip-option.active,
+.date-chip-option:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.date-chip-option input {
+  display: none;
+}
+
+.date-chip-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.date-chip-calendar {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.date-chip-date {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+}
+
+.date-chip-seats {
+  font-size: 0.75rem;
+  color: #2E7D32;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.seat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2E7D32;
+}
+
+/* Stepper */
+.traveler-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-soft);
+  overflow: hidden;
+}
+
+.stepper-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast);
+}
+
+.stepper-btn:hover {
+  background: var(--primary-subtle);
+}
+
+.stepper-input {
+  width: 50px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.stepper-input::-webkit-inner-spin-button, 
+.stepper-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Booking Inputs Grid */
+.booking-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Coupon Styles */
+.coupon-input-group {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.coupon-input {
+  flex: 1;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.coupon-feedback {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.coupon-feedback.is-success {
+  background: #E8F5E9;
+  border: 1px solid #C8E6C9;
+  color: #2E7D32;
+}
+
+.coupon-feedback.is-error {
+  background: #FFEBEE;
+  border: 1px solid #FFCDD2;
+  color: #C62828;
+}
+
+.quick-coupons-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.coupon-pill-btn {
+  background: var(--bg-surface-soft);
+  border: 1px dashed var(--border-card);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all var(--transition-fast);
+}
+
+.coupon-pill-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+  transform: translateY(-1px);
+}
+
+.coupon-pill-disc {
+  background: var(--terracotta-subtle);
+  color: var(--terracotta);
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+/* Payment Tabs */
+.payment-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.payment-tab-option {
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem;
+  cursor: pointer;
+  background: var(--bg-surface-soft);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  transition: all var(--transition-fast);
+}
+
+.payment-tab-option:hover {
+  border-color: var(--primary);
+}
+
+.payment-tab-option:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+}
+
+.payment-tab-option input {
+  margin-top: 0.2rem;
+  accent-color: var(--primary);
+}
+
+.payment-tab-option strong {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--primary);
+}
+
+.payment-tab-option small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.payment-details-box {
+  background: var(--bg-surface-soft);
+  border: 1px solid var(--border-subtle);
+  padding: 1.1rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Sticky Summary Card */
+.booking-summary-column {
+  position: sticky;
+  top: calc(var(--nav-height) + 1.5rem);
+}
+
+.booking-summary-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-card);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-md);
+}
+
+.summary-pkg-header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.summary-pkg-thumb {
+  width: 80px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border-subtle);
+}
+
+.summary-pkg-title {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.25;
+}
+
+.summary-pkg-dest {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.summary-badge {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: var(--bg-surface-soft);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.summary-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+}
+
+.summary-detail-label {
+  color: var(--text-secondary);
+}
+
+.summary-detail-val {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Ticket Voucher Card */
+.ticket-voucher-card {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Customer Booking History Cards */
+.booking-history-card {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+  margin-bottom: 1.25rem;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.booking-history-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.booking-card-media {
+  position: relative;
+  background: var(--bg-surface-soft);
+}
+
+.booking-card-thumb {
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  object-fit: cover;
+}
+
+.booking-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.booking-highlights-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  background: var(--bg-surface-soft);
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  margin: 1rem 0;
+}
+
+.highlight-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.highlight-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.highlight-val {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.booking-review-snippet {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+}
+
+.booking-card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Star Rating Picker */
+.star-rating-picker {
+  display: flex;
+  gap: 0.35rem;
+  font-size: 2rem;
+  color: #CBD5E1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.star-item {
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.star-item:hover,
+.star-item.active {
+  color: #F59E0B;
+  transform: scale(1.15);
+}
+
+@media (max-width: 992px) {
+  .booking-grid {
+    grid-template-columns: 1fr;
+  }
+  .booking-summary-column {
+    position: static;
+  }
+  .booking-history-card {
+    grid-template-columns: 1fr;
+  }
+  .booking-card-thumb {
+    height: 180px;
+  }
+  .booking-highlights-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .booking-inputs-grid {
+    grid-template-columns: 1fr;
+  }
+  .payment-tabs {
+    grid-template-columns: 1fr;
+  }
+  .booking-highlights-row {
+    grid-template-columns: 1fr;
+  }
+}

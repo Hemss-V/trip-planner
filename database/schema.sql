@@ -178,3 +178,18 @@ CREATE TABLE IF NOT EXISTS system_logs (
         FOREIGN KEY (user_id) REFERENCES users(user_id)
         ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS coupons (
+    coupon_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(255) NOT NULL,
+    discount_type ENUM('PERCENT', 'FLAT') NOT NULL DEFAULT 'PERCENT',
+    discount_value DECIMAL(10,2) NOT NULL,
+    min_booking_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    max_discount DECIMAL(10,2) NULL,
+    valid_until DATE NOT NULL,
+    usage_limit INT NOT NULL DEFAULT 100,
+    times_used INT NOT NULL DEFAULT 0,
+    status ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

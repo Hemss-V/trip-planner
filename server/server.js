@@ -1022,6 +1022,631 @@ async function handleDeletePackageAvailability(req, res, availabilityId) {
 }
 
 // ==========================================
+// ==========================================
+// Member 2: Booking Engine, Payments, Coupons & Reviews
+// ==========================================
+
+/**
+ * GET /api/coupons
+ * Returns active promotional coupons
+ */
+async function handleGetCoupons(req, res) {
+  try {
+    const query = `
+      SELECT 
+        coupon_id,
+        code,
+        description,
+        discount_type,
+        discount_value,
+        min_booking_amount,
+        max_discount,
+        valid_until
+      FROM coupons
+      WHERE status = 'ACTIVE' 
+        AND valid_until >= CURDATE()
+        AND times_used < usage_limit
+      ORDER BY discount_value DESC
+    `;
+    const [rows] = await pool.query(query);
+    sendJSON(res, 200, { success: true, data: rows });
+  } catch (err) {
+    console.error('Error fetching coupons:', err.message);
+    sendError(res, 500, 'Unable to load available coupons.');
+  }
+}
+
+/**
+ * POST /api/coupons/validate
+ * Validates a coupon code against subtotal amount
+ */
+async function handleValidateCoupon(req, res) {
+  let body;
+  try {
+    body = await readJSONBody(req);
+  } catch (err) {
+    sendError(res, 400, 'Invalid JSON body.');
+    return;
+  }
+
+  const code = String(body.code || '').trim().toUpperCase();
+  const totalAmount = parseFloat(body.total_amount);
+
+  if (!code) {
+    sendError(res, 400, 'Please enter a coupon code.');
+    return;
+  }
+  if (isNaN(totalAmount) || totalAmount <= 0) {
+    sendError(res, 400, 'A valid booking amount is required for validation.');
+    return;
+  }
+
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM coupons WHERE UPPER(code) = ? AND status = 'ACTIVE'",
+      [code]
+    );
+
+    if (rows.length === 0) {
+      sendError(res, 404, 'Coupon code "' + code + '" is invalid or expired.');
+      return;
+    }
+
+    const coupon = rows[0];
+
+    // Check validity date
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (coupon.valid_until && coupon.valid_until < todayStr) {
+      sendError(res, 400, 'This coupon has expired on ' + coupon.valid_until + '.');
+      return;
+    }
+
+    // Check usage limit
+    if (coupon.times_used >= coupon.usage_limit) {
+      sendError(res, 400, 'This coupon has reached its maximum usage limit.');
+      return;
+    }
+
+    // Check minimum booking threshold
+    const minAmount = parseFloat(coupon.min_booking_amount) || 0;
+    if (totalAmount < minAmount) {
+      sendError(res, 400, 'This coupon requires a minimum booking amount of ₹' + Math.round(minAmount).toLocaleString('en-IN') + '.');
+      return;
+    }
+
+    // Calculate discount
+    let discountAmount = 0;
+    const discountVal = parseFloat(coupon.discount_value);
+    if (coupon.discount_type === 'PERCENT') {
+      discountAmount = (totalAmount * discountVal) / 100;
+      const maxDiscount = parseFloat(coupon.max_discount);
+      if (!isNaN(maxDiscount) && maxDiscount > 0 && discountAmount > maxDiscount) {
+        discountAmount = maxDiscount;
+      }
+    } else {
+      // FLAT discount
+      discountAmount = Math.min(discountVal, totalAmount);
+    }
+
+    discountAmount = Math.round(discountAmount * 100) / 100;
+    const finalAmount = Math.max(0, Math.round((totalAmount - discountAmount) * 100) / 100);
+
+    sendJSON(res, 200, {
+      success: true,
+      message: 'Coupon ' + coupon.code + ' applied successfully!',
+      data: {
+        coupon_id: coupon.coupon_id,
+        code: coupon.code,
+        description: coupon.description,
+        discount_type: coupon.discount_type,
+        discount_value: discountVal,
+        discount_amount: discountAmount,
+        final_amount: finalAmount
+      }
+    });
+  } catch (err) {
+    console.error('Error validating coupon:', err.message);
+    sendError(res, 500, 'Error validating coupon.');
+  }
+}
+
+/**
+ * POST /api/bookings
+ * Customer Reservation & Payment Transaction
+ */
+async function handleCreateBooking(req, res) {
+  let body;
+  try {
+    body = await readJSONBody(req);
+  } catch (err) {
+    sendError(res, 400, 'Invalid JSON body.');
+    return;
+  }
+
+  const customerId = parseInt(body.customer_id, 10) || 3; // Default to Aarav Sharma for demo if unauth
+  const packageId = parseInt(body.package_id, 10);
+  const availabilityId = parseInt(body.availability_id, 10);
+  const travelers = parseInt(body.travelers, 10);
+  const couponCode = String(body.coupon_code || '').trim().toUpperCase();
+  const paymentMethod = String(body.payment_method || 'UPI').toUpperCase();
+
+  const leadPassenger = body.lead_passenger || {};
+  const fullName = String(leadPassenger.full_name || body.full_name || '').trim();
+  const email = String(leadPassenger.email || body.email || '').trim().toLowerCase();
+  const phone = String(leadPassenger.phone || body.phone || '').trim();
+  const notes = String(leadPassenger.special_requests || body.special_requests || '').trim();
+
+  // Basic Validations
+  if (isNaN(packageId) || packageId <= 0) {
+    sendError(res, 400, 'Valid Tour Package is required.');
+    return;
+  }
+  if (isNaN(availabilityId) || availabilityId <= 0) {
+    sendError(res, 400, 'Please select a scheduled departure date.');
+    return;
+  }
+  if (isNaN(travelers) || travelers <= 0) {
+    sendError(res, 400, 'Number of travelers must be at least 1.');
+    return;
+  }
+  if (!fullName || fullName.length < 2) {
+    sendError(res, 400, 'Lead passenger full name is required.');
+    return;
+  }
+  if (!email || !EMAIL_PATTERN.test(email)) {
+    sendError(res, 400, 'A valid contact email address is required.');
+    return;
+  }
+  if (!phone || !PHONE_PATTERN.test(phone)) {
+    sendError(res, 400, 'A valid 10-digit contact mobile number is required.');
+    return;
+  }
+
+  try {
+    // 1. Fetch Package details
+    const [pkgRows] = await pool.query(
+      "SELECT package_id, title, price, capacity, status, destination_id FROM tour_packages WHERE package_id = ?",
+      [packageId]
+    );
+    if (pkgRows.length === 0 || pkgRows[0].status !== 'APPROVED') {
+      sendError(res, 404, 'Tour package is not available for booking.');
+      return;
+    }
+    const pkg = pkgRows[0];
+
+    // 2. Fetch Availability and check seats
+    const [availRows] = await pool.query(
+      "SELECT availability_id, available_date, seats_available, status FROM package_availability WHERE availability_id = ? AND package_id = ?",
+      [availabilityId, packageId]
+    );
+    if (availRows.length === 0 || availRows[0].status === 'CLOSED') {
+      sendError(res, 404, 'The selected departure date is not available.');
+      return;
+    }
+    const avail = availRows[0];
+
+    if (avail.seats_available < travelers) {
+      sendError(res, 400, 'Only ' + avail.seats_available + ' seat(s) remaining on ' + avail.available_date + '. Please reduce traveler count.');
+      return;
+    }
+
+    // 3. Compute base amount
+    const pricePerPerson = parseFloat(pkg.price);
+    const baseAmount = pricePerPerson * travelers;
+
+    // 4. Calculate coupon discount if provided
+    let discountAmount = 0;
+    let appliedCouponId = null;
+
+    if (couponCode) {
+      const [couponRows] = await pool.query(
+        "SELECT * FROM coupons WHERE UPPER(code) = ? AND status = 'ACTIVE' AND valid_until >= CURDATE() AND times_used < usage_limit",
+        [couponCode]
+      );
+      if (couponRows.length > 0) {
+        const c = couponRows[0];
+        const minReq = parseFloat(c.min_booking_amount) || 0;
+        if (baseAmount >= minReq) {
+          appliedCouponId = c.coupon_id;
+          const discVal = parseFloat(c.discount_value);
+          if (c.discount_type === 'PERCENT') {
+            discountAmount = (baseAmount * discVal) / 100;
+            const maxDisc = parseFloat(c.max_discount);
+            if (!isNaN(maxDisc) && maxDisc > 0 && discountAmount > maxDisc) {
+              discountAmount = maxDisc;
+            }
+          } else {
+            discountAmount = Math.min(discVal, baseAmount);
+          }
+          discountAmount = Math.round(discountAmount * 100) / 100;
+        }
+      }
+    }
+
+    const finalAmount = Math.max(0, Math.round((baseAmount - discountAmount) * 100) / 100);
+
+    // 5. Atomically decrement seats
+    const [seatUpdate] = await pool.query(
+      "UPDATE package_availability SET seats_available = seats_available - ? WHERE availability_id = ? AND seats_available >= ?",
+      [travelers, availabilityId, travelers]
+    );
+    if (seatUpdate.affectedRows === 0) {
+      sendError(res, 409, 'Seats on this departure were just reserved by another customer. Please try again.');
+      return;
+    }
+
+    // Update status to FULL if seats reached 0
+    await pool.query(
+      "UPDATE package_availability SET status = 'FULL' WHERE availability_id = ? AND seats_available = 0",
+      [availabilityId]
+    );
+
+    // 6. Insert into bookings table
+    const [bookingResult] = await pool.query(
+      `INSERT INTO bookings 
+        (customer_id, package_id, availability_id, travelers, total_amount, booking_status, payment_status)
+       VALUES (?, ?, ?, ?, ?, 'CONFIRMED', 'PAID')`,
+      [customerId, packageId, availabilityId, travelers, finalAmount]
+    );
+    const bookingId = bookingResult.insertId;
+
+    // 7. Insert payment record
+    const [paymentResult] = await pool.query(
+      `INSERT INTO payments 
+        (booking_id, customer_id, amount, payment_method, payment_status, paid_at)
+       VALUES (?, ?, ?, ?, 'SUCCESS', NOW())`,
+      [bookingId, customerId, finalAmount, paymentMethod]
+    );
+
+    // 8. If coupon used, increment times_used
+    if (appliedCouponId) {
+      await pool.query(
+        "UPDATE coupons SET times_used = times_used + 1 WHERE coupon_id = ?",
+        [appliedCouponId]
+      );
+    }
+
+    // 9. Audit system log
+    try {
+      await pool.query(
+        "INSERT INTO system_logs (user_id, action, description) VALUES (?, 'BOOKING_CONFIRMED', ?)",
+        [customerId, 'Booking #' + bookingId + ' confirmed for "' + pkg.title + '" (' + travelers + ' travelers, ₹' + finalAmount + ').']
+      );
+    } catch (logErr) {
+      // non-fatal
+    }
+
+    const bookingReference = 'ROAM-' + String(bookingId).padStart(6, '0');
+
+    sendJSON(res, 201, {
+      success: true,
+      message: 'Booking confirmed! Your holiday is reserved.',
+      data: {
+        booking_id: bookingId,
+        booking_reference: bookingReference,
+        package_id: packageId,
+        package_title: pkg.title,
+        travel_date: avail.available_date,
+        travelers: travelers,
+        price_per_person: pricePerPerson,
+        base_amount: baseAmount,
+        discount_amount: discountAmount,
+        total_amount: finalAmount,
+        payment_method: paymentMethod,
+        lead_passenger: {
+          full_name: fullName,
+          email: email,
+          phone: phone,
+          notes: notes
+        },
+        booking_status: 'CONFIRMED',
+        payment_status: 'PAID'
+      }
+    });
+  } catch (err) {
+    console.error('Error creating booking:', err.message);
+    sendError(res, 500, 'Failed to complete package reservation.');
+  }
+}
+
+/**
+ * GET /api/customer/bookings
+ * Returns booking history for customer
+ */
+async function handleGetCustomerBookings(req, res, parsedUrl) {
+  const customerIdParam = parsedUrl.query.customer_id;
+  let customerId = parseInt(customerIdParam, 10);
+  if (isNaN(customerId) || customerId <= 0) {
+    customerId = 3; // Default demo customer Aarav Sharma
+  }
+
+  try {
+    const query = `
+      SELECT 
+        b.booking_id,
+        b.customer_id,
+        b.package_id,
+        b.availability_id,
+        b.travelers,
+        b.total_amount,
+        b.booking_status,
+        b.payment_status,
+        b.booked_at,
+        p.title AS package_title,
+        p.duration_days,
+        p.price AS package_price,
+        p.image AS package_image,
+        d.name AS destination_name,
+        d.city AS destination_city,
+        d.state AS destination_state,
+        c.category_name,
+        pa.available_date,
+        pay.payment_id,
+        pay.payment_method,
+        pay.paid_at,
+        r.review_id,
+        r.rating,
+        r.comment AS review_comment,
+        r.created_at AS review_date
+      FROM bookings b
+      JOIN tour_packages p ON b.package_id = p.package_id
+      JOIN destinations d ON p.destination_id = d.destination_id
+      JOIN categories c ON p.category_id = c.category_id
+      JOIN package_availability pa ON b.availability_id = pa.availability_id
+      LEFT JOIN payments pay ON b.booking_id = pay.booking_id
+      LEFT JOIN reviews r ON b.booking_id = r.booking_id
+      WHERE b.customer_id = ?
+      ORDER BY b.booked_at DESC, b.booking_id DESC
+    `;
+
+    const [rows] = await pool.query(query, [customerId]);
+    sendJSON(res, 200, { success: true, data: rows });
+  } catch (err) {
+    console.error('Error fetching customer bookings:', err.message);
+    sendError(res, 500, 'Unable to load booking history.');
+  }
+}
+
+/**
+ * GET /api/bookings/:id
+ * Retrieve details for a single booking confirmation
+ */
+async function handleGetBookingById(req, res, bookingId) {
+  const id = parseInt(bookingId, 10);
+  if (isNaN(id) || id <= 0) {
+    sendError(res, 400, 'Invalid booking ID.');
+    return;
+  }
+
+  try {
+    const query = `
+      SELECT 
+        b.booking_id,
+        b.customer_id,
+        b.package_id,
+        b.availability_id,
+        b.travelers,
+        b.total_amount,
+        b.booking_status,
+        b.payment_status,
+        b.booked_at,
+        p.title AS package_title,
+        p.duration_days,
+        p.price AS package_price,
+        p.image AS package_image,
+        d.name AS destination_name,
+        d.city AS destination_city,
+        d.state AS destination_state,
+        c.category_name,
+        pa.available_date,
+        u.name AS provider_name,
+        u.email AS provider_email,
+        u.mobile AS provider_mobile,
+        pay.payment_method,
+        pay.paid_at
+      FROM bookings b
+      JOIN tour_packages p ON b.package_id = p.package_id
+      JOIN destinations d ON p.destination_id = d.destination_id
+      JOIN categories c ON p.category_id = c.category_id
+      JOIN package_availability pa ON b.availability_id = pa.availability_id
+      LEFT JOIN users u ON p.provider_id = u.user_id
+      LEFT JOIN payments pay ON b.booking_id = pay.booking_id
+      WHERE b.booking_id = ?
+    `;
+
+    const [rows] = await pool.query(query, [id]);
+    if (rows.length === 0) {
+      sendError(res, 404, 'Booking record not found.');
+      return;
+    }
+
+    sendJSON(res, 200, { success: true, data: rows[0] });
+  } catch (err) {
+    console.error('Error loading booking by id:', err.message);
+    sendError(res, 500, 'Failed to load booking details.');
+  }
+}
+
+/**
+ * POST /api/bookings/:id/cancel
+ * Cancel an eligible booking & restock seats to package_availability
+ */
+async function handleCancelBooking(req, res, bookingId) {
+  const id = parseInt(bookingId, 10);
+  if (isNaN(id) || id <= 0) {
+    sendError(res, 400, 'Invalid booking ID.');
+    return;
+  }
+
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM bookings WHERE booking_id = ?",
+      [id]
+    );
+    if (rows.length === 0) {
+      sendError(res, 404, 'Booking not found.');
+      return;
+    }
+
+    const booking = rows[0];
+    if (booking.booking_status === 'CANCELLED') {
+      sendError(res, 400, 'This booking has already been cancelled.');
+      return;
+    }
+
+    // 1. Restock seats in package_availability
+    await pool.query(
+      "UPDATE package_availability SET seats_available = seats_available + ?, status = 'AVAILABLE' WHERE availability_id = ?",
+      [booking.travelers, booking.availability_id]
+    );
+
+    // 2. Update booking status
+    await pool.query(
+      "UPDATE bookings SET booking_status = 'CANCELLED', payment_status = 'REFUNDED' WHERE booking_id = ?",
+      [id]
+    );
+
+    // 3. Update payment status
+    await pool.query(
+      "UPDATE payments SET payment_status = 'REFUNDED' WHERE booking_id = ?",
+      [id]
+    );
+
+    // 4. Log to system_logs
+    try {
+      await pool.query(
+        "INSERT INTO system_logs (user_id, action, description) VALUES (?, 'BOOKING_CANCELLED', ?)",
+        [booking.customer_id, 'Booking #' + id + ' was cancelled. ' + booking.travelers + ' seat(s) restored.']
+      );
+    } catch (e) {
+      // non-fatal
+    }
+
+    sendJSON(res, 200, {
+      success: true,
+      message: 'Booking #' + id + ' has been cancelled successfully. Your payment will be refunded.'
+    });
+  } catch (err) {
+    console.error('Error cancelling booking:', err.message);
+    sendError(res, 500, 'Failed to cancel booking.');
+  }
+}
+
+/**
+ * POST /api/reviews
+ * Submit a customer review and star rating for a completed experience
+ */
+async function handleCreateReview(req, res) {
+  let body;
+  try {
+    body = await readJSONBody(req);
+  } catch (err) {
+    sendError(res, 400, 'Invalid JSON body.');
+    return;
+  }
+
+  const bookingId = parseInt(body.booking_id, 10);
+  const rating = parseInt(body.rating, 10);
+  const comment = String(body.comment || '').trim();
+
+  if (isNaN(bookingId) || bookingId <= 0) {
+    sendError(res, 400, 'Valid booking reference is required.');
+    return;
+  }
+  if (isNaN(rating) || rating < 1 || rating > 5) {
+    sendError(res, 400, 'Please select a rating between 1 and 5 stars.');
+    return;
+  }
+  if (!comment || comment.length < 5) {
+    sendError(res, 400, 'Please write a review of at least 5 characters.');
+    return;
+  }
+
+  try {
+    const [bRows] = await pool.query(
+      "SELECT customer_id, package_id, booking_status FROM bookings WHERE booking_id = ?",
+      [bookingId]
+    );
+    if (bRows.length === 0) {
+      sendError(res, 404, 'Booking not found.');
+      return;
+    }
+    const b = bRows[0];
+    if (b.booking_status === 'CANCELLED') {
+      sendError(res, 400, 'Cannot review a cancelled booking.');
+      return;
+    }
+
+    const insertSql = `
+      INSERT INTO reviews (booking_id, customer_id, package_id, rating, comment)
+      VALUES (?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE rating = VALUES(rating), comment = VALUES(comment), created_at = NOW()
+    `;
+    const [result] = await pool.query(insertSql, [bookingId, b.customer_id, b.package_id, rating, comment]);
+
+    sendJSON(res, 201, {
+      success: true,
+      message: 'Thank you for your review! It helps other travelers.',
+      data: {
+        review_id: result.insertId || undefined,
+        booking_id: bookingId,
+        rating: rating,
+        comment: comment
+      }
+    });
+  } catch (err) {
+    console.error('Error creating review:', err.message);
+    sendError(res, 500, 'Failed to submit review.');
+  }
+}
+
+/**
+ * GET /api/packages/:id/reviews
+ * Return reviews and rating metrics for a package
+ */
+async function handleGetPackageReviews(req, res, packageId) {
+  const id = parseInt(packageId, 10);
+  if (isNaN(id) || id <= 0) {
+    sendError(res, 400, 'Invalid tour package ID.');
+    return;
+  }
+
+  try {
+    const query = `
+      SELECT 
+        r.review_id,
+        r.rating,
+        r.comment,
+        r.created_at,
+        u.name AS customer_name
+      FROM reviews r
+      JOIN users u ON r.customer_id = u.user_id
+      WHERE r.package_id = ?
+      ORDER BY r.created_at DESC
+    `;
+    const [rows] = await pool.query(query, [id]);
+
+    let avgRating = 0;
+    if (rows.length > 0) {
+      const sum = rows.reduce((acc, curr) => acc + curr.rating, 0);
+      avgRating = Math.round((sum / rows.length) * 10) / 10;
+    }
+
+    sendJSON(res, 200, {
+      success: true,
+      data: {
+        total_reviews: rows.length,
+        average_rating: avgRating,
+        reviews: rows
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching package reviews:', err.message);
+    sendError(res, 500, 'Failed to load package reviews.');
+  }
+}
+
+// ==========================================
 // Main HTTP Request Router
 // ==========================================
 const server = http.createServer(async (req, res) => {
@@ -1042,6 +1667,47 @@ const server = http.createServer(async (req, res) => {
   // REST API Routes
   if (pathname.startsWith('/api/')) {
     // Auth routes
+    // Member 2: Coupons & Discounts
+    if (pathname === '/api/coupons' && req.method === 'GET') {
+      await handleGetCoupons(req, res);
+      return;
+    }
+    if (pathname === '/api/coupons/validate' && req.method === 'POST') {
+      await handleValidateCoupon(req, res);
+      return;
+    }
+
+    // Member 2: Bookings & Reservations
+    if (pathname === '/api/bookings' && req.method === 'POST') {
+      await handleCreateBooking(req, res);
+      return;
+    }
+    if (pathname === '/api/customer/bookings' && req.method === 'GET') {
+      await handleGetCustomerBookings(req, res, parsedUrl);
+      return;
+    }
+    const bookingMatch = pathname.match(/^\/api\/bookings\/(\d+)$/);
+    if (bookingMatch && req.method === 'GET') {
+      await handleGetBookingById(req, res, bookingMatch[1]);
+      return;
+    }
+    const bookingCancelMatch = pathname.match(/^\/api\/bookings\/(\d+)\/cancel$/);
+    if (bookingCancelMatch && req.method === 'POST') {
+      await handleCancelBooking(req, res, bookingCancelMatch[1]);
+      return;
+    }
+
+    // Member 2: Reviews & Ratings
+    if (pathname === '/api/reviews' && req.method === 'POST') {
+      await handleCreateReview(req, res);
+      return;
+    }
+    const pkgReviewsMatch = pathname.match(/^\/api\/packages\/(\d+)\/reviews$/);
+    if (pkgReviewsMatch && req.method === 'GET') {
+      await handleGetPackageReviews(req, res, pkgReviewsMatch[1]);
+      return;
+    }
+
     if (pathname === '/api/auth/register' && req.method === 'POST') {
       await handleRegister(req, res);
       return;

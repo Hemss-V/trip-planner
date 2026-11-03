@@ -1,6 +1,6 @@
 /**
  * Roamly - Standalone Package Details Script
- * Member 2: Destinations & Tour Package Discovery
+ * Member 2: Destinations, Tour Package Discovery, Bookings & Verified Reviews
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           </p>
           <div class="availability-list">
             ${pkg.availability.map(avail => `
-              <div class="availability-item">
+              <div class="availability-item" style="cursor: pointer;" onclick="window.location.href='customer/booking.html?package_id=${pkg.package_id}&date=${avail.available_date}'">
                 <div class="availability-date">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -92,7 +92,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                   </svg>
                   <span>${formatDate(avail.available_date)}</span>
                 </div>
-                <span class="availability-seats">${avail.seats_available} Seats Available</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="availability-seats">${avail.seats_available} Seats Available</span>
+                  <span style="color: var(--primary); font-size: 0.8rem; font-weight: 700;">Book →</span>
+                </div>
               </div>
             `).join('')}
           </div>
@@ -170,24 +173,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
 
           <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-            <button class="btn btn-terracotta btn-lg" id="detail-book-btn" style="flex: 2;">
+            <a href="customer/booking.html?package_id=${pkg.package_id}" class="btn btn-terracotta btn-lg" id="detail-book-btn" style="flex: 2; text-align: center;">
               Continue to Booking →
-            </button>
-            <a href="packages.html" class="btn btn-outline btn-lg" style="flex: 1;">
+            </a>
+            <a href="packages.html" class="btn btn-outline btn-lg" style="flex: 1; text-align: center;">
               Back
             </a>
-          </div>
-
-          <!-- Booking Handoff Notice -->
-          <div class="booking-handoff-banner" id="detail-handoff-notice" style="display: none;">
-            <div class="booking-handoff-icon">ℹ️</div>
-            <div class="booking-handoff-text">
-              <h4>Booking Module Handoff Notice</h4>
-              <p>
-                Package <strong>${pkg.title}</strong> (ID: #${pkg.package_id}) is confirmed. 
-                Customer booking and payment transactions belong to Member 3's Booking & Payment module upon final group project assembly.
-              </p>
-            </div>
           </div>
         </div>
       </div>
@@ -213,6 +204,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           <!-- Day-by-Day Itinerary -->
           ${itineraryHtml}
+
+          <!-- Verified Customer Reviews Section (Member 2) -->
+          <div id="package-reviews-container" style="margin-top: 3.5rem;">
+            <!-- Populated via loadPackageReviews -->
+          </div>
         </div>
 
         <div>
@@ -222,17 +218,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
     `;
 
-    // Hook book button
-    const bookBtn = document.getElementById('detail-book-btn');
-    if (bookBtn) {
-      bookBtn.addEventListener('click', () => {
-        const notice = document.getElementById('detail-handoff-notice');
-        if (notice) {
-          notice.style.display = 'flex';
-          notice.scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-    }
+    // Load customer reviews asynchronously
+    loadPackageReviews(pkg.package_id);
 
   } catch (err) {
     contentEl.innerHTML = `
@@ -245,3 +232,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
   }
 });
+
+/**
+ * Fetch and render customer reviews
+ */
+async function loadPackageReviews(packageId) {
+  const container = document.getElementById('package-reviews-container');
+  if (!container) return;
+
+  try {
+    const res = await fetch(`/api/packages/${packageId}/reviews`);
+    if (!res.ok) return;
+    const json = await res.json();
+    const data = json.data || { total_reviews: 0, average_rating: 0, reviews: [] };
+
+    const reviews = data.reviews || [];
+    const avg = data.average_rating || 0;
+    const total = data.total_reviews || 0;
+
+    let reviewsListHtml = '';
+    if (reviews.length === 0) {
+      reviewsListHtml = `
+        <div style="background: var(--bg-surface); padding: 1.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-card); text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌟</div>
+          <h4 style="color: var(--primary); margin-bottom: 0.25rem;">No traveler reviews yet</h4>
+          <p style="font-size: 0.9rem; margin: 0;">Be among the first travelers to book this trip and leave verified feedback!</p>
+        </div>
+      `;
+    } else {
+      reviewsListHtml = `
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          ${reviews.map(r => `
+            <div style="background: var(--bg-surface); padding: 1.25rem 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-card);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="color: #F59E0B; font-size: 1.1rem;">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+                  <strong style="color: var(--text-primary); font-size: 0.95rem;">${r.customer_name || 'Verified Traveler'}</strong>
+                </div>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">${formatDate(r.created_at)}</span>
+              </div>
+              <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5; margin: 0;">
+                "${r.comment}"
+              </p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    container.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+        <div>
+          <span class="section-tag" style="margin-bottom: 0.25rem;">Verified Traveler Feedback</span>
+          <h2 style="font-size: 1.5rem; color: var(--primary); margin: 0;">Customer Reviews</h2>
+        </div>
+        ${total > 0 ? `
+          <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-surface); padding: 0.5rem 1rem; border-radius: var(--radius-pill); border: 1px solid var(--border-card);">
+            <span style="font-size: 1.2rem; color: #F59E0B;">★</span>
+            <strong style="font-size: 1.1rem; color: var(--primary);">${avg}</strong>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">(${total} review${total === 1 ? '' : 's'})</span>
+          </div>
+        ` : ''}
+      </div>
+      ${reviewsListHtml}
+    `;
+  } catch (err) {
+    console.warn('Unable to load package reviews:', err);
+  }
+}

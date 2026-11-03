@@ -25,7 +25,27 @@ A full-stack tourism platform for discovering and booking local tour packages ac
 - Package administration APIs for providers to manage their packages.
 - Live availability manager for departure dates and seat capacity.
 
-**Booking and payments:** in progress. Package selection is passed on via `package_id`.
+**Reservation & Booking Engine (Member 2)**
+- Step-by-step checkout: date picker from live availability, traveler count stepper, lead passenger form.
+- Atomic booking creation: seat decrement, booking record, payment record in a single transaction.
+- Four payment methods simulated: UPI, Credit/Debit Card, Net Banking, Pay on Arrival.
+- Ticket voucher modal with booking ID and printable summary.
+
+**Promotional Coupon & Discount System (Member 2 — Special Feature)**
+- Active coupon listing via `GET /api/coupons`.
+- Real-time AJAX validation: checks expiry, usage limit, minimum booking amount; returns computed discount.
+- Coupons: `EXPLORE10` (10% off), `FESTIVE25` (25% off), `ROAMLY1000` (₹1,000 flat), `EARLYBIRD` (15% off).
+- Order summary recalculates live on coupon apply/remove.
+
+**Booking History & Cancellations (Member 2)**
+- Customer booking history page with metrics banner (total trips, amount spent, upcoming bookings).
+- Filter tabs: All / Upcoming / Completed / Cancelled.
+- Cancellation workflow with modal confirmation; seats are restocked automatically.
+- Cancellation refund status recorded in `payments` table.
+
+**Verified Reviews & Star Ratings (Member 2)**
+- Review submission modal (1–5 stars + comment) locked to confirmed bookings only.
+- Reviews display on `package-details.html` with average rating and total count.
 
 ## Tech Stack
 
@@ -45,6 +65,7 @@ Schema: `database/schema.sql` (database name `tourism_booking`)
 | Users and access | `users`, `addresses`, `admin_permissions`, `system_logs` |
 | Catalog | `destinations`, `categories`, `tour_packages`, `package_itinerary`, `package_availability` |
 | Transactions | `bookings`, `payments`, `reviews` |
+| Promotions | `coupons` |
 
 Tables use primary and foreign keys with constraints. Users have one of four roles: `CUSTOMER`, `PROVIDER`, `ADMIN` or `SUPER_ADMIN`.
 
@@ -93,6 +114,15 @@ Open **http://localhost:3000**. The registration page is at **http://localhost:3
 | `GET` | `/api/packages/:id` | Package details, itinerary and availability |
 
 **Package query parameters:** `search`/`q`, `destination`, `category`, `minPrice`, `maxPrice`, `minDuration`, `maxDuration`, `date` (YYYY-MM-DD), `sort` (`recommended`, `price_asc`, `price_desc`, `duration_asc`, `duration_desc`).
+
+| `GET` | `/api/coupons` | List active promotional coupons |
+| `POST` | `/api/coupons/validate` | Validate a coupon code and compute discount |
+| `POST` | `/api/bookings` | Create a booking (atomic seat decrement + payment record) |
+| `GET` | `/api/customer/bookings` | Booking history for a customer (query: `customer_id`) |
+| `GET` | `/api/bookings/:id` | Single booking detail for voucher / receipt |
+| `POST` | `/api/bookings/:id/cancel` | Cancel a booking and restock seats |
+| `POST` | `/api/reviews` | Submit a verified star review for a completed booking |
+| `GET` | `/api/packages/:id/reviews` | Package reviews with average rating and count |
 
 Provider package administration and availability endpoints are implemented in `server/server.js`.
 

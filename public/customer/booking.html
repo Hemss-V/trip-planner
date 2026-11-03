@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserve Tour Package — Roamly</title>
+  <meta name="description" content="Reserve local Indian tourism packages securely with instant confirmation, live seat availability, promo discounts, and flexible payment options on Roamly.">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+</head>
+<body style="background-color: var(--bg-primary);">
+
+  <!-- Navigation Bar -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="../index.html" class="brand-logo">
+        <div class="brand-icon">🧭</div>
+        <span>Roamly <span style="font-size: 0.8rem; font-family: var(--font-sans); color: var(--sage-dark); font-weight: 600; text-transform: uppercase; margin-left: 0.2rem;">Booking</span></span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="../packages.html">Explore Catalog</a>
+        <a href="../destinations.html">Destinations</a>
+        <a href="my-bookings.html">My Bookings</a>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Customer Account Switcher for Demo Evaluation -->
+        <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-surface); padding: 0.35rem 0.75rem; border-radius: var(--radius-pill); border: 1px solid var(--border-card); font-size: 0.85rem;">
+          <span style="font-size: 1rem;">👤</span>
+          <label for="customer-select" style="font-weight: 600; color: var(--text-secondary); margin-right: 0.25rem;">Traveler:</label>
+          <select id="customer-select" class="provider-switch-select" style="padding: 0.2rem 0.5rem; font-size: 0.82rem; border-radius: var(--radius-sm);" title="Switch customer profile">
+            <option value="3" selected>Aarav Sharma (Customer)</option>
+            <option value="4">Priya Nair (Customer)</option>
+          </select>
+        </div>
+
+        <a href="../packages.html" class="btn btn-outline btn-sm">← Back to Packages</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Checkout Container -->
+  <main class="booking-checkout-container" style="padding: 2.5rem 0 5rem;">
+    <div class="container">
+      
+      <!-- Top Title Bar -->
+      <div style="margin-bottom: 2rem;">
+        <span class="section-tag">Member 2 — Reservation & Payment Module</span>
+        <h1 style="font-family: var(--font-serif); font-size: 2.4rem; color: var(--primary); margin: 0.35rem 0 0.5rem;">
+          Complete Your Reservation
+        </h1>
+        <p style="color: var(--text-secondary); font-size: 1.05rem;">
+          Select your departure date, confirm traveler details, apply promo coupons, and pay securely.
+        </p>
+      </div>
+
+      <!-- Loading State -->
+      <div id="booking-loading-state" style="padding: 5rem 1rem; text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">🧭</div>
+        <h3 style="color: var(--primary); font-family: var(--font-serif);">Loading Package Details & Availability...</h3>
+        <p style="color: var(--text-muted);">Fetching real-time seat inventory from MySQL.</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="booking-error-state" style="padding: 4rem 1.5rem; text-align: center; background: var(--bg-surface); border-radius: var(--radius-md); border: 1px solid #F5C6CB;" hidden>
+        <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+        <h2 style="color: #721C24; margin-bottom: 0.5rem;" id="booking-error-title">Package Not Found</h2>
+        <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 1.5rem;" id="booking-error-message">
+          Unable to find the requested tour package. Please select a valid package from the catalog.
+        </p>
+        <a href="../packages.html" class="btn btn-primary">Browse All Tour Packages</a>
+      </div>
+
+      <!-- Checkout Grid (Shown when loaded) -->
+      <div id="booking-main-grid" class="booking-grid" style="display: none;">
+        
+        <!-- Left: Form Steps -->
+        <div class="booking-form-column">
+          <form id="checkout-form" novalidate>
+            
+            <!-- Step 1: Select Departure Date -->
+            <section class="checkout-card">
+              <div class="checkout-card-header">
+                <div class="step-badge">1</div>
+                <div>
+                  <h3 class="checkout-step-title">Select Departure Date</h3>
+                  <p class="checkout-step-subtitle">Live seat counts directly from MySQL `package_availability`</p>
+                </div>
+              </div>
+
+              <div id="date-selection-container" class="date-chips-grid">
+                <!-- Dynamically populated via booking.js -->
+              </div>
+              <p class="field-error" id="date-error" role="alert"></p>
+            </section>
+
+            <!-- Step 2: Number of Travelers -->
+            <section class="checkout-card">
+              <div class="checkout-card-header">
+                <div class="step-badge">2</div>
+                <div>
+                  <h3 class="checkout-step-title">Travelers & Party Size</h3>
+                  <p class="checkout-step-subtitle">Specify how many tickets to reserve</p>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                <div class="traveler-stepper">
+                  <button type="button" class="stepper-btn" id="btn-decrement-travelers" aria-label="Decrease travelers">−</button>
+                  <input type="number" id="travelers-input" name="travelers" class="stepper-input" min="1" max="20" value="1" required>
+                  <button type="button" class="stepper-btn" id="btn-increment-travelers" aria-label="Increase travelers">+</button>
+                </div>
+                <div>
+                  <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">
+                    <span id="travelers-count-text">1 Traveler</span>
+                  </div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);" id="seats-remaining-hint">
+                    Select a departure date above to see available capacity
+                  </div>
+                </div>
+              </div>
+              <p class="field-error" id="travelers-error" role="alert"></p>
+            </section>
+
+            <!-- Step 3: Lead Passenger Contact Details -->
+            <section class="checkout-card">
+              <div class="checkout-card-header">
+                <div class="step-badge">3</div>
+                <div>
+                  <h3 class="checkout-step-title">Lead Passenger Information</h3>
+                  <p class="checkout-step-subtitle">Booking confirmation and trip updates will be delivered here</p>
+                </div>
+              </div>
+
+              <div class="booking-inputs-grid">
+                <div class="form-group">
+                  <label class="form-label" for="full-name">Full Name *</label>
+                  <input type="text" id="full-name" name="fullName" class="form-input" placeholder="e.g. Aarav Sharma" required>
+                  <p class="field-error" id="full-name-error"></p>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="email">Email Address *</label>
+                  <input type="email" id="email" name="email" class="form-input" placeholder="e.g. aarav@customer.in" required>
+                  <p class="field-error" id="email-error"></p>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="phone">Mobile Number *</label>
+                  <input type="tel" id="phone" name="phone" class="form-input" placeholder="10-digit Indian mobile (e.g. 9811122334)" required maxlength="15">
+                  <p class="field-error" id="phone-error"></p>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="special-requests">Special Requests (Optional)</label>
+                  <input type="text" id="special-requests" name="specialRequests" class="form-input" placeholder="e.g. Vegetarian meals, ground floor stay, window seat">
+                </div>
+              </div>
+            </section>
+
+            <!-- Step 4: Promotional Coupons & Discounts -->
+            <section class="checkout-card">
+              <div class="checkout-card-header">
+                <div class="step-badge">4</div>
+                <div>
+                  <h3 class="checkout-step-title">Promo Coupons & Discounts</h3>
+                  <p class="checkout-step-subtitle">Member 2 Special Feature: Real-time coupon engine</p>
+                </div>
+              </div>
+
+              <!-- Promo Code Input Group -->
+              <div class="coupon-input-group">
+                <input type="text" id="coupon-code-input" class="form-input coupon-input" placeholder="Enter coupon code (e.g. EXPLORE10)" maxlength="30" style="text-transform: uppercase;">
+                <button type="button" id="btn-apply-coupon" class="btn btn-primary" style="white-space: nowrap;">Apply Code</button>
+              </div>
+              <div id="coupon-feedback" class="coupon-feedback" hidden></div>
+
+              <!-- Quick-click Active Coupon Chips -->
+              <div style="margin-top: 1rem;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">
+                  Available Promotional Offers (Click to Apply):
+                </span>
+                <div id="quick-coupons-container" class="quick-coupons-row">
+                  <!-- Populated dynamically via booking.js -->
+                </div>
+              </div>
+            </section>
+
+            <!-- Step 5: Payment Gateway Simulation -->
+            <section class="checkout-card">
+              <div class="checkout-card-header">
+                <div class="step-badge">5</div>
+                <div>
+                  <h3 class="checkout-step-title">Payment Method Simulation</h3>
+                  <p class="checkout-step-subtitle">Transactions are securely recorded in MySQL `payments` table</p>
+                </div>
+              </div>
+
+              <!-- Payment Method Tabs -->
+              <div class="payment-tabs" role="radiogroup">
+                <label class="payment-tab-option">
+                  <input type="radio" name="paymentMethod" value="UPI" checked>
+                  <span>
+                    <strong>⚡ UPI / QR</strong>
+                    <small>GPay, PhonePe, Paytm</small>
+                  </span>
+                </label>
+                <label class="payment-tab-option">
+                  <input type="radio" name="paymentMethod" value="CARD">
+                  <span>
+                    <strong>💳 Debit / Credit Card</strong>
+                    <small>Visa, Mastercard, RuPay</small>
+                  </span>
+                </label>
+                <label class="payment-tab-option">
+                  <input type="radio" name="paymentMethod" value="NETBANKING">
+                  <span>
+                    <strong>🏦 Net Banking</strong>
+                    <small>All Indian banks</small>
+                  </span>
+                </label>
+                <label class="payment-tab-option">
+                  <input type="radio" name="paymentMethod" value="PAY_ON_ARRIVAL">
+                  <span>
+                    <strong>📍 Pay on Arrival</strong>
+                    <small>Pay at destination</small>
+                  </span>
+                </label>
+              </div>
+
+              <!-- Dynamic Simulated Payment Fields -->
+              <div id="payment-field-upi" class="payment-details-box" style="margin-top: 1.25rem;">
+                <label class="form-label" for="upi-id" style="font-size: 0.85rem;">Virtual Payment Address (VPA / UPI ID)</label>
+                <input type="text" id="upi-id" class="form-input" placeholder="e.g. yourname@oksbi or 9811122334@paytm" value="aarav@oksbi">
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem;">
+                  🔒 Instant payment verification via mock gateway
+                </div>
+              </div>
+
+              <div id="payment-field-card" class="payment-details-box" style="margin-top: 1.25rem; display: none;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.75rem;">
+                  <div>
+                    <label class="form-label" style="font-size: 0.85rem;">Card Number</label>
+                    <input type="text" class="form-input" placeholder="4111 •••• •••• 1111" maxlength="19" value="4532 8912 3456 7890">
+                  </div>
+                  <div>
+                    <label class="form-label" style="font-size: 0.85rem;">Expiry</label>
+                    <input type="text" class="form-input" placeholder="MM/YY" maxlength="5" value="12/28">
+                  </div>
+                  <div>
+                    <label class="form-label" style="font-size: 0.85rem;">CVV</label>
+                    <input type="password" class="form-input" placeholder="•••" maxlength="4" value="888">
+                  </div>
+                </div>
+              </div>
+
+              <div id="payment-field-netbanking" class="payment-details-box" style="margin-top: 1.25rem; display: none;">
+                <label class="form-label" style="font-size: 0.85rem;">Choose Bank</label>
+                <select class="form-input">
+                  <option selected>State Bank of India (SBI)</option>
+                  <option>HDFC Bank</option>
+                  <option>ICICI Bank</option>
+                  <option>Axis Bank</option>
+                  <option>Kotak Mahindra Bank</option>
+                </select>
+              </div>
+
+              <div id="payment-field-arrival" class="payment-details-box" style="margin-top: 1.25rem; display: none;">
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;">
+                  💵 You can pay the tour guide or operator in cash or UPI on Day 1 of the trip. Your seats remain reserved.
+                </p>
+              </div>
+
+              <!-- Confirm Button -->
+              <div style="margin-top: 2rem;">
+                <button type="submit" id="btn-submit-booking" class="btn btn-primary btn-lg" style="width: 100%; font-size: 1.1rem; padding: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                  <span>🔒</span>
+                  <span id="btn-submit-text">Confirm Reservation & Pay</span>
+                </button>
+                <p style="text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-top: 0.75rem;">
+                  By confirming, your reservation is instantly booked and seats are held in MySQL.
+                </p>
+              </div>
+
+            </section>
+
+          </form>
+        </div>
+
+        <!-- Right: Sticky Order Summary Card -->
+        <div class="booking-summary-column">
+          <div class="booking-summary-card">
+            
+            <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--primary); margin-bottom: 1rem;">
+              Trip Summary
+            </h3>
+
+            <!-- Package Preview -->
+            <div class="summary-pkg-header">
+              <img id="summary-pkg-img" src="" alt="Package cover" class="summary-pkg-thumb">
+              <div>
+                <h4 id="summary-pkg-title" class="summary-pkg-title">Loading...</h4>
+                <div id="summary-pkg-dest" class="summary-pkg-dest">Destination</div>
+                <div style="margin-top: 0.35rem;">
+                  <span id="summary-pkg-category" class="summary-badge">Category</span>
+                  <span id="summary-pkg-duration" class="summary-badge" style="background: var(--primary-subtle); color: var(--primary);">0 Days</span>
+                </div>
+              </div>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--border-card); margin: 1.25rem 0;">
+
+            <!-- Departure Schedule Details -->
+            <div class="summary-detail-row">
+              <span class="summary-detail-label">Departure Date:</span>
+              <span class="summary-detail-val" id="summary-date-display">Please select date</span>
+            </div>
+            <div class="summary-detail-row">
+              <span class="summary-detail-label">Travelers:</span>
+              <span class="summary-detail-val" id="summary-travelers-display">1 Person</span>
+            </div>
+            <div class="summary-detail-row">
+              <span class="summary-detail-label">Price per person:</span>
+              <span class="summary-detail-val" id="summary-unit-price">₹0</span>
+            </div>
+
+            <hr style="border: none; border-top: 1px dashed var(--border-card); margin: 1.25rem 0;">
+
+            <!-- Price Breakdown Calculation -->
+            <div class="summary-detail-row">
+              <span class="summary-detail-label">Subtotal:</span>
+              <span class="summary-detail-val" id="summary-subtotal">₹0</span>
+            </div>
+
+            <div class="summary-detail-row" id="summary-discount-row" style="display: none; color: #2E7D32;">
+              <span class="summary-detail-label" style="color: #2E7D32;">
+                Discount (<span id="summary-applied-code"></span>):
+              </span>
+              <span class="summary-detail-val" id="summary-discount-amount" style="font-weight: 700;">-₹0</span>
+            </div>
+
+            <div class="summary-detail-row">
+              <span class="summary-detail-label">Taxes & Booking Fees:</span>
+              <span class="summary-detail-val" style="color: #2E7D32; font-weight: 600;">₹0 (Free)</span>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--border-card); margin: 1.25rem 0;">
+
+            <!-- Grand Total -->
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.25rem;">
+              <div>
+                <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary);">Total Amount:</div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Includes all taxes & reservations</div>
+              </div>
+              <div id="summary-grand-total" style="font-family: var(--font-serif); font-size: 2rem; font-weight: 700; color: var(--terracotta);">
+                ₹0
+              </div>
+            </div>
+
+            <!-- Guarantee Perks -->
+            <div style="background: var(--bg-surface-soft); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 0.82rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span>🛡️</span> <strong>Instant MySQL Seat Confirmation</strong>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span>🔄</span> <strong>Free Cancellation</strong> before departure
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span>💬</span> <strong>Verified Local Operator</strong> on arrival
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Interactive Confirmation & Ticket Voucher Modal -->
+  <div id="ticket-modal" class="provider-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="ticket-modal-title">
+    <div class="provider-modal-dialog" style="max-width: 650px;">
+      
+      <div class="provider-modal-header" style="background: var(--primary); color: #fff; border-bottom: none; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div style="font-size: 2rem;">🎉</div>
+          <div>
+            <span style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--sage-light); font-weight: 700;">Reservation Confirmed</span>
+            <h3 id="ticket-modal-title" style="color: #fff; font-family: var(--font-serif); font-size: 1.5rem; margin: 0;">
+              Your Trip is Booked!
+            </h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="provider-modal-body" style="padding: 1.75rem;">
+        
+        <!-- Ticket Boarding Pass Card -->
+        <div class="ticket-voucher-card">
+          
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; border-bottom: 1px dashed var(--border-card); padding-bottom: 1rem;">
+            <div>
+              <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted);">Booking Reference</div>
+              <div id="voucher-ref-code" style="font-family: monospace; font-size: 1.35rem; font-weight: 800; color: var(--primary); letter-spacing: 0.05em;">ROAM-000000</div>
+            </div>
+            <span class="status-pill status-approved">CONFIRMED & PAID</span>
+          </div>
+
+          <div style="margin-bottom: 1.25rem;">
+            <div id="voucher-pkg-title" style="font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; color: var(--primary); line-height: 1.3; margin-bottom: 0.25rem;">
+              Tour Package Title
+            </div>
+            <div id="voucher-date-display" style="font-size: 0.95rem; color: var(--terracotta); font-weight: 600;">
+              📅 Departure: 15 Nov 2026
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; background: var(--bg-surface-soft); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-size: 0.85rem;">
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Lead Passenger</span>
+              <strong id="voucher-lead-name" style="color: var(--text-primary);">Aarav Sharma</strong>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Travelers</span>
+              <strong id="voucher-travelers">2 Travelers</strong>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Total Paid</span>
+              <strong id="voucher-amount" style="color: var(--primary); font-size: 1rem;">₹0</strong>
+            </div>
+          </div>
+
+          <div style="font-size: 0.84rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+            <span>Payment Method: <strong id="voucher-pay-method">UPI</strong></span>
+            <span>Recorded in MySQL `bookings` table</span>
+          </div>
+
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+          A copy of this confirmation has been saved to your <a href="my-bookings.html" style="color: var(--primary); font-weight: 700; text-decoration: underline;">Booking History</a>.
+        </div>
+
+      </div>
+
+      <div class="provider-modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.print()">
+          🖨️ Print Ticket Voucher
+        </button>
+        <div style="display: flex; gap: 0.5rem;">
+          <a href="../packages.html" class="btn btn-outline btn-sm">Explore More Trips</a>
+          <a href="my-bookings.html" class="btn btn-primary btn-sm">View in My Bookings →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="booking-toast-box" class="provider-toast-box" aria-live="polite"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System.</div>
+      <div>Member 2: Booking Engine, Payments & Promotional Discounts</div>
+    </div>
+  </footer>
+
+  <!-- Script Controller -->
+  <script src="../js/booking.js"></script>
+</body>
+</html>
+
