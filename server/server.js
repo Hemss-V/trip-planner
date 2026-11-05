@@ -12,6 +12,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { pool, testConnection } = require('./config/db');
 const member3 = require('./member3_handlers');
+const member1 = require('./member1_handlers');
 
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 const PUBLIC_DIR = path.resolve(__dirname, '..', 'public');
@@ -1713,8 +1714,38 @@ const server = http.createServer(async (req, res) => {
       await handleRegister(req, res);
       return;
     }
+    // Member 1: Authentication & sessions
     if (pathname === '/api/auth/login' && req.method === 'POST') {
-      await member3.handleLogin(req, res);
+      await member1.handleLogin(req, res);
+      return;
+    }
+    if (pathname === '/api/auth/logout' && req.method === 'POST') {
+      await member1.handleLogout(req, res);
+      return;
+    }
+    if (pathname === '/api/auth/me' && req.method === 'GET') {
+      await member1.handleGetMe(req, res);
+      return;
+    }
+
+    // Member 1: Customer profile & addresses
+    if (pathname === '/api/customer/profile') {
+      if (req.method === 'GET') { await member1.handleGetCustomerProfile(req, res); return; }
+      if (req.method === 'PUT') { await member1.handleUpdateCustomerProfile(req, res); return; }
+    }
+    if (pathname === '/api/customer/addresses') {
+      if (req.method === 'GET') { await member1.handleGetAddresses(req, res); return; }
+      if (req.method === 'POST') { await member1.handleCreateAddress(req, res); return; }
+    }
+    const addressMatch = pathname.match(/^\/api\/customer\/addresses\/(\d+)$/);
+    if (addressMatch) {
+      if (req.method === 'PUT') { await member1.handleUpdateAddress(req, res, parseInt(addressMatch[1], 10)); return; }
+      if (req.method === 'DELETE') { await member1.handleDeleteAddress(req, res, parseInt(addressMatch[1], 10)); return; }
+    }
+
+    // Member 1: Smart Budget-Based Package Finder
+    if (pathname === '/api/packages/budget-finder' && req.method === 'POST') {
+      await member1.handleBudgetFinder(req, res);
       return;
     }
 
@@ -2005,6 +2036,11 @@ const server = http.createServer(async (req, res) => {
     console.error('Verify your .env configuration.');
   } else {
     console.log('Database connected successfully to MySQL.');
+    try {
+      await member1.ensureMember1Schema();
+    } catch (err) {
+      console.error('WARNING: Member 1 schema migration failed:', err.message);
+    }
   }
 
   server.listen(PORT, () => {

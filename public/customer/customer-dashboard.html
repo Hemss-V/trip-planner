@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard — Roamly Traveler</title>
+  <meta name="description" content="Your Roamly traveler home: upcoming trips, saved packages and quick search.">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+</head>
+<body style="background-color: var(--bg-primary);">
+
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="../index.html" class="brand-logo">
+        <div class="brand-icon">🧭</div>
+        <span>Roamly</span>
+      </a>
+      <nav class="nav-links">
+        <a href="customer-dashboard.html" style="color: var(--primary); font-weight: 700;">Dashboard</a>
+        <a href="../packages.html">Explore</a>
+        <a href="budget-finder.html">Budget Finder</a>
+        <a href="my-bookings.html">My Bookings</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+      <div class="nav-actions"></div>
+    </div>
+  </header>
+
+  <main class="container cust-page" id="dashboard-root" hidden>
+
+    <section class="welcome-banner">
+      <h1 id="welcome-title">Welcome back!</h1>
+      <p id="welcome-subtitle">Where to next? Search the catalog or let the Budget Finder pick trips that fit your wallet.</p>
+      <form class="welcome-search" id="quick-search-form" role="search">
+        <input class="form-input" type="search" id="quick-search-input" aria-label="Search packages" placeholder="Search destinations, e.g. Jaipur, Kerala, Goa…">
+        <button class="btn btn-terracotta" type="submit">Search</button>
+      </form>
+    </section>
+
+    <div id="profile-nudge" class="form-alert is-success" hidden style="margin-bottom: 1.5rem;"></div>
+
+    <section class="dash-stats" aria-label="Your travel summary">
+      <div class="dash-stat">
+        <div class="dash-stat-label">Upcoming Trips</div>
+        <div class="dash-stat-value" id="stat-upcoming">–</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-label">Total Bookings</div>
+        <div class="dash-stat-value" id="stat-total">–</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-label">Total Spent</div>
+        <div class="dash-stat-value" id="stat-spent">–</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-label">Saved Packages</div>
+        <div class="dash-stat-value" id="stat-saved">–</div>
+      </div>
+    </section>
+
+    <section class="quick-links" aria-label="Quick access">
+      <a class="quick-link" href="budget-finder.html">
+        <span class="quick-link-icon">💰</span>
+        <span class="quick-link-title">Smart Budget Finder</span>
+        <span class="quick-link-desc">Trips that fit your total budget</span>
+      </a>
+      <a class="quick-link" href="my-bookings.html">
+        <span class="quick-link-icon">🎫</span>
+        <span class="quick-link-title">My Bookings</span>
+        <span class="quick-link-desc">Tickets, cancellations &amp; reviews</span>
+      </a>
+      <a class="quick-link" href="itinerary-planner.html">
+        <span class="quick-link-icon">🗺️</span>
+        <span class="quick-link-title">Plan a Custom Trip</span>
+        <span class="quick-link-desc">Build your own itinerary</span>
+      </a>
+      <a class="quick-link" href="profile.html">
+        <span class="quick-link-icon">⚙️</span>
+        <span class="quick-link-title">Profile &amp; Addresses</span>
+        <span class="quick-link-desc">Contact details and password</span>
+      </a>
+    </section>
+
+    <div class="cust-grid-2">
+      <section class="cust-card">
+        <h2>Upcoming Trips <a href="my-bookings.html" class="link-btn">View all</a></h2>
+        <div class="mini-list" id="upcoming-list">
+          <div class="mini-empty">Loading your trips…</div>
+        </div>
+      </section>
+
+      <section class="cust-card">
+        <h2>Saved Packages <a href="budget-finder.html" class="link-btn">Find more</a></h2>
+        <div class="mini-list" id="wishlist-list"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System.</div>
+      <div>Member 1: Customer Dashboard</div>
+    </div>
+  </footer>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/customer-dashboard.js"></script>
+</body>
+</html>

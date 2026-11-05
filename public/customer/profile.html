@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile — Roamly Traveler</title>
+  <meta name="description" content="Manage your Roamly profile, password and saved delivery/billing addresses.">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+</head>
+<body style="background-color: var(--bg-primary);">
+
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="../index.html" class="brand-logo">
+        <div class="brand-icon">🧭</div>
+        <span>Roamly</span>
+      </a>
+      <nav class="nav-links">
+        <a href="customer-dashboard.html">Dashboard</a>
+        <a href="../packages.html">Explore</a>
+        <a href="budget-finder.html">Budget Finder</a>
+        <a href="my-bookings.html">My Bookings</a>
+        <a href="profile.html" style="color: var(--primary); font-weight: 700;">Profile</a>
+      </nav>
+      <div class="nav-actions"></div>
+    </div>
+  </header>
+
+  <main class="container cust-page" id="profile-root" hidden>
+    <div class="cust-page-header">
+      <h1>My Profile</h1>
+      <p>Keep your contact details, password and addresses up to date.</p>
+    </div>
+
+    <div class="profile-layout">
+      <!-- Identity summary -->
+      <aside class="cust-card profile-side">
+        <div class="profile-avatar-lg" id="profile-avatar">–</div>
+        <h2 style="justify-content: center; margin-bottom: 0.2rem;" id="profile-display-name">–</h2>
+        <div style="font-size: 0.88rem; color: var(--text-secondary);" id="profile-display-email">–</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;" id="profile-member-since"></div>
+        <div class="profile-side-stats">
+          <div class="dash-stat">
+            <div class="dash-stat-label">Bookings</div>
+            <div class="dash-stat-value" id="ps-bookings">–</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-label">Active</div>
+            <div class="dash-stat-value" id="ps-active">–</div>
+          </div>
+          <div class="dash-stat" style="grid-column: 1 / -1;">
+            <div class="dash-stat-label">Total Spent</div>
+            <div class="dash-stat-value" id="ps-spent">–</div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="profile-main">
+        <!-- Personal details -->
+        <section class="cust-card" aria-labelledby="details-heading">
+          <h2 id="details-heading">Personal Details</h2>
+          <div id="details-alert" class="form-alert" role="alert" hidden style="margin-bottom: 1rem;"></div>
+          <form id="details-form" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="pf-name">Full Name *</label>
+                <input class="form-input" id="pf-name" maxlength="100" autocomplete="name" aria-describedby="pf-name-error">
+                <div class="field-error" id="pf-name-error"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pf-mobile">Mobile Number *</label>
+                <input class="form-input" id="pf-mobile" type="tel" autocomplete="tel" placeholder="+91 98765 43210" aria-describedby="pf-mobile-error">
+                <div class="field-error" id="pf-mobile-error"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="pf-email">Email Address</label>
+              <input class="form-input" id="pf-email" type="email" readonly aria-describedby="pf-email-hint" style="background: var(--bg-surface-soft);">
+              <div class="form-hint" id="pf-email-hint">Your sign-in email can't be changed.</div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="details-submit">Save Changes</button>
+          </form>
+        </section>
+
+        <!-- Password -->
+        <section class="cust-card" aria-labelledby="password-heading">
+          <h2 id="password-heading">Change Password</h2>
+          <div id="password-alert" class="form-alert" role="alert" hidden style="margin-bottom: 1rem;"></div>
+          <form id="password-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="pw-current">Current Password *</label>
+              <input class="form-input" id="pw-current" type="password" autocomplete="current-password" aria-describedby="pw-current-error">
+              <div class="field-error" id="pw-current-error"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="pw-new">New Password *</label>
+                <input class="form-input" id="pw-new" type="password" autocomplete="new-password" aria-describedby="pw-new-error">
+                <div class="field-error" id="pw-new-error"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pw-confirm">Confirm New Password *</label>
+                <input class="form-input" id="pw-confirm" type="password" autocomplete="new-password" aria-describedby="pw-confirm-error">
+                <div class="field-error" id="pw-confirm-error"></div>
+              </div>
+            </div>
+            <div class="form-hint" style="margin-bottom: 0.9rem;">At least 8 characters with uppercase, lowercase and a number.</div>
+            <button type="submit" class="btn btn-primary" id="password-submit">Update Password</button>
+          </form>
+        </section>
+
+        <!-- Addresses -->
+        <section class="cust-card" aria-labelledby="address-heading">
+          <h2 id="address-heading">
+            Saved Addresses
+            <button type="button" class="btn btn-outline btn-sm" id="address-add-btn">+ Add Address</button>
+          </h2>
+          <div id="address-list" class="address-list"></div>
+
+          <form id="address-form" hidden novalidate style="border-top: 1px solid var(--border-card); padding-top: 1.25rem;">
+            <h3 style="font-size: 1rem; margin-bottom: 0.9rem;" id="address-form-title">Add Address</h3>
+            <div id="address-alert" class="form-alert" role="alert" hidden style="margin-bottom: 1rem;"></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="ad-type">Address Type</label>
+                <select class="form-select" id="ad-type">
+                  <option value="HOME">Home</option>
+                  <option value="BILLING">Billing</option>
+                  <option value="DELIVERY">Delivery</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ad-pincode">PIN Code</label>
+                <input class="form-input" id="ad-pincode" inputmode="numeric" maxlength="6" autocomplete="postal-code" aria-describedby="ad-pincode-error">
+                <div class="field-error" id="ad-pincode-error"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ad-line">Address Line *</label>
+              <input class="form-input" id="ad-line" maxlength="255" autocomplete="street-address" placeholder="House no., street, area" aria-describedby="ad-line-error">
+              <div class="field-error" id="ad-line-error"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="ad-city">City *</label>
+                <input class="form-input" id="ad-city" maxlength="100" autocomplete="address-level2" aria-describedby="ad-city-error">
+                <div class="field-error" id="ad-city-error"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ad-state">State *</label>
+                <input class="form-input" id="ad-state" maxlength="100" autocomplete="address-level1" list="indian-states" aria-describedby="ad-state-error">
+                <div class="field-error" id="ad-state-error"></div>
+              </div>
+            </div>
+            <label style="display: flex; gap: 0.5rem; align-items: center; font-size: 0.9rem; margin-bottom: 1rem;">
+              <input type="checkbox" id="ad-default"> Make this my default address
+            </label>
+            <div style="display: flex; gap: 0.6rem;">
+              <button type="submit" class="btn btn-primary" id="address-submit">Save Address</button>
+              <button type="button" class="btn btn-outline" id="address-cancel">Cancel</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <datalist id="indian-states">
+    <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option>
+    <option>Chhattisgarh</option><option>Delhi</option><option>Goa</option><option>Gujarat</option><option>Haryana</option>
+    <option>Himachal Pradesh</option><option>Jammu and Kashmir</option><option>Jharkhand</option><option>Karnataka</option>
+    <option>Kerala</option><option>Ladakh</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
+    <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Puducherry</option>
+    <option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+    <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option>
+  </datalist>
+
+  <div class="cust-toast" id="toast" role="status" aria-live="polite"></div>
+
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System.</div>
+      <div>Member 1: Customer Profile &amp; Addresses</div>
+    </div>
+  </footer>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/customer-profile.js"></script>
+</body>
+</html>

@@ -179,6 +179,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             <a href="packages.html" class="btn btn-outline btn-lg" style="flex: 1; text-align: center;">
               Back
             </a>
+            <button type="button" class="btn btn-outline btn-lg" id="detail-save-btn" style="flex: 1;"
+                    aria-pressed="${RoamlyWishlist.has(pkg.package_id)}">
+              ${RoamlyWishlist.has(pkg.package_id) ? '❤️ Saved' : '🤍 Save'}
+            </button>
           </div>
         </div>
       </div>
@@ -217,6 +221,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
       </div>
     `;
+
+    // Member 1: save / unsave this package to the customer's wishlist
+    const saveBtn = document.getElementById('detail-save-btn');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        const nowSaved = RoamlyWishlist.toggle(pkg);
+        saveBtn.textContent = nowSaved ? '❤️ Saved' : '🤍 Save';
+        saveBtn.setAttribute('aria-pressed', String(nowSaved));
+      });
+    }
 
     // Load customer reviews asynchronously
     loadPackageReviews(pkg.package_id);

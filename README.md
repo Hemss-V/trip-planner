@@ -158,7 +158,6 @@ Provider package administration and availability endpoints are implemented in `s
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/auth/login` | Multi-role user sign-in with audit activity logging |
 | `GET` | `/api/provider/packages` | List all packages for provider with itinerary, booking, and revenue counts |
 | `PUT` | `/api/provider/packages/:id` | Update package title, details, duration, price, capacity |
 | `DELETE` | `/api/provider/packages/:id` | Delete package or safely archive if bookings exist |
@@ -188,11 +187,29 @@ Provider package administration and availability endpoints are implemented in `s
 | `GET`/`DELETE`| `/api/customer/itineraries/:id`| Retrieve single plan / delete custom plan |
 | `POST` | `/api/customer/itineraries/:id/submit`| Submit custom plan request to local operator |
 
+### Member 1: Authentication, Customer Profile & Smart Budget Finder
+
+Implemented in `server/member1_handlers.js`. Sign-in sets an HttpOnly, HMAC-signed `roamly_session` cookie (set `SESSION_SECRET` in `.env`; without it, sessions reset on every server restart). `public/js/api.js` adds the signed-in user's name, role badge, dashboard shortcut and Sign Out button to the header of every page.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/login` | Sign in (scrypt password check). Body: `email`, `password`, optional `role` (`AUTO`/`CUSTOMER`/`PROVIDER`/`ADMIN`/`SUPER_ADMIN`), `remember` |
+| `POST` | `/api/auth/logout` | Revoke the session and clear the cookie |
+| `GET` | `/api/auth/me` | Current signed-in user (401 when signed out) |
+| `GET`/`PUT` | `/api/customer/profile` | View profile + booking stats / update `name`, `mobile`, or password (`current_password` + `new_password`) |
+| `GET`/`POST` | `/api/customer/addresses` | List / add addresses (`HOME`, `BILLING`, `DELIVERY`, `OTHER`) |
+| `PUT`/`DELETE` | `/api/customer/addresses/:id` | Edit / delete an address (also used to change the default address) |
+| `POST` | `/api/packages/budget-finder` | Body: `budget`, `travelers`, `duration_days` (0 = any), `duration_flex`, `category_id`, `stretch_pct`. Returns `within_budget`, `budget_saver` (costs at most 80% of budget) and `stretch_match` tiers |
+
+Pages: `login.html`, `customer/customer-dashboard.html`, `customer/profile.html`, `customer/budget-finder.html`.
+
+The server adds the `address_type` and `is_default` columns to an existing `addresses` table automatically at startup. Seeded demo accounts accept only `demoPassword123`; their placeholder hash is replaced with a real scrypt hash on first sign-in.
+
 ### Demo Test Credentials for Presentation & Evaluation
 
 | Role | Email | Password | Direct Portal URL |
 |---|---|---|---|
-| **Customer** | `aarav@customer.in` | `demoPassword123` | [customer/itinerary-planner.html](http://localhost:3000/customer/itinerary-planner.html) |
+| **Customer** | `aarav@customer.in` | `demoPassword123` | [customer/customer-dashboard.html](http://localhost:3000/customer/customer-dashboard.html) |
 | **Tour Provider** | `heritage@roamly.in` | `demoPassword123` | [provider/dashboard.html](http://localhost:3000/provider/dashboard.html) |
 | **Administrator** | `admin@roamly.in` | `demoPassword123` | [admin/dashboard.html](http://localhost:3000/admin/dashboard.html) |
 | **Super Admin** | `superadmin@roamly.in` | `demoPassword123` | [superadmin/dashboard.html](http://localhost:3000/superadmin/dashboard.html) |

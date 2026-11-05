@@ -16,58 +16,28 @@
     }
     .auth-box {
       width: 100%;
-      max-width: 480px;
+      max-width: 500px;
       background: var(--bg-surface);
       border-radius: var(--radius-lg);
       border: 1px solid var(--border-card);
       box-shadow: var(--shadow-md);
       padding: 2.25rem;
     }
-    .auth-header {
+    .auth-header { text-align: center; margin-bottom: 1.5rem; }
+    .signed-in-panel {
       text-align: center;
-      margin-bottom: 1.75rem;
-    }
-    .quick-login-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.65rem;
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border-card);
-    }
-    .quick-role-btn {
-      padding: 0.6rem 0.75rem;
+      padding: 1rem;
       border-radius: var(--radius-sm);
-      border: 1px solid var(--border-card);
-      background: var(--bg-surface-soft);
-      cursor: pointer;
-      text-align: left;
-      transition: all var(--transition-fast);
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-    }
-    .quick-role-btn:hover {
-      border-color: var(--primary);
       background: var(--primary-subtle);
-    }
-    .quick-role-title {
-      font-weight: 700;
-      font-size: 0.85rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
       color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
     }
-    .quick-role-email {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-    }
+    .signed-in-panel .btn { margin-top: 0.6rem; }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation Bar -->
   <header class="site-header">
     <div class="container nav-container">
       <a href="index.html" class="brand-logo">
@@ -78,7 +48,7 @@
       <nav class="nav-links">
         <a href="packages.html">Explore Catalog</a>
         <a href="destinations.html">Destinations</a>
-        <a href="customer/itinerary-planner.html">Itinerary Planner</a>
+        <a href="customer/budget-finder.html">Budget Finder</a>
       </nav>
 
       <div class="nav-actions">
@@ -89,32 +59,59 @@
 
   <main class="auth-page-container">
     <div class="auth-box">
-      
+
       <div class="auth-header">
         <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🧭</div>
         <h1 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--primary); margin-bottom: 0.35rem;">
           Sign In to Roamly
         </h1>
         <p style="font-size: 0.92rem; color: var(--text-secondary);">
-          Access your traveler account, provider portal, or admin console
+          One sign-in for travelers, tour providers and administrators
         </p>
       </div>
 
-      <!-- Alert -->
-      <div id="login-alert" class="form-alert is-error" hidden style="margin-bottom: 1.25rem;"></div>
+      <div id="signed-in-panel" class="signed-in-panel" hidden></div>
 
-      <form id="login-form">
+      <div id="login-alert" class="form-alert" role="alert" hidden style="margin-bottom: 1.25rem;"></div>
+
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <span class="form-label" id="role-label">Sign in as</span>
+          <div class="role-selector" role="radiogroup" aria-labelledby="role-label">
+            <input type="radio" name="role" id="role-auto" value="AUTO" checked>
+            <label for="role-auto">Auto</label>
+            <input type="radio" name="role" id="role-customer" value="CUSTOMER">
+            <label for="role-customer">Customer</label>
+            <input type="radio" name="role" id="role-provider" value="PROVIDER">
+            <label for="role-provider">Provider</label>
+            <input type="radio" name="role" id="role-admin" value="ADMIN">
+            <label for="role-admin">Admin</label>
+            <input type="radio" name="role" id="role-super" value="SUPER_ADMIN">
+            <label for="role-super">Super</label>
+          </div>
+          <div class="role-detected-hint" id="role-hint">We'll detect your role and open the right portal.</div>
+        </div>
+
         <div class="form-group">
           <label class="form-label" for="login-email">Email Address *</label>
-          <input class="form-input" type="email" id="login-email" required placeholder="your.email@example.com">
+          <input class="form-input" type="email" id="login-email" autocomplete="username" placeholder="your.email@example.com" aria-describedby="email-error">
+          <div class="field-error" id="email-error"></div>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="login-password">Password *</label>
-          <input class="form-input" type="password" id="login-password" required placeholder="••••••••">
+          <div class="password-wrap">
+            <input class="form-input" type="password" id="login-password" autocomplete="current-password" placeholder="••••••••" aria-describedby="password-error">
+            <button type="button" class="password-toggle" id="password-toggle" aria-label="Show password">Show</button>
+          </div>
+          <div class="field-error" id="password-error"></div>
         </div>
 
-        <button type="submit" class="btn btn-primary" id="btn-login-submit" style="width: 100%; height: 46px; font-size: 1rem; margin-top: 0.5rem;">
+        <div class="login-row">
+          <label><input type="checkbox" id="login-remember"> Keep me signed in for 7 days</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btn-login-submit" style="width: 100%; height: 46px; font-size: 1rem;">
           Sign In
         </button>
       </form>
@@ -123,116 +120,139 @@
         New to Roamly? <a href="register.html" style="font-weight: 700; color: var(--primary); text-decoration: underline;">Create an account</a>
       </div>
 
-      <!-- Quick 1-Click Role Switcher for Viva Evaluation -->
-      <div style="margin-top: 1.5rem;">
-        <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sage-dark); text-align: center;">
-          ⚡ Quick 1-Click Demo Evaluation Sign-In
-        </div>
-
-        <div class="quick-login-grid">
-          <button type="button" class="quick-role-btn" data-email="aarav@customer.in" data-role="CUSTOMER">
-            <span class="quick-role-title">👤 Customer</span>
-            <span class="quick-role-email">aarav@customer.in</span>
-          </button>
-
-          <button type="button" class="quick-role-btn" data-email="heritage@roamly.in" data-role="PROVIDER">
-            <span class="quick-role-title">🏢 Tour Provider</span>
-            <span class="quick-role-email">heritage@roamly.in</span>
-          </button>
-
-          <button type="button" class="quick-role-btn" data-email="admin@roamly.in" data-role="ADMIN">
-            <span class="quick-role-title">🛡️ Administrator</span>
-            <span class="quick-role-email">admin@roamly.in</span>
-          </button>
-
-          <button type="button" class="quick-role-btn" data-email="superadmin@roamly.in" data-role="SUPER_ADMIN">
-            <span class="quick-role-title">⚡ Super Admin</span>
-            <span class="quick-role-email">superadmin@roamly.in</span>
-          </button>
-        </div>
-      </div>
-
     </div>
   </main>
 
-  <!-- Site Footer -->
   <footer class="site-footer">
     <div class="container footer-bottom">
       <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System.</div>
-      <div>Member 3: Authentication & Multi-Role Access</div>
+      <div>Member 1: Authentication &amp; Session Management</div>
     </div>
   </footer>
 
+  <script src="js/api.js"></script>
   <script>
-    (function() {
+    (function () {
+      const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const ROLE_HINTS = {
+        AUTO: "We'll detect your role and open the right portal.",
+        CUSTOMER: 'Book trips, manage your profile and use the Budget Finder.',
+        PROVIDER: 'Manage your tour packages, availability and bookings.',
+        ADMIN: 'Moderate packages, destinations and users.',
+        SUPER_ADMIN: 'Manage administrators and view system logs.'
+      };
+
       const form = document.getElementById('login-form');
       const emailInput = document.getElementById('login-email');
       const passwordInput = document.getElementById('login-password');
+      const rememberInput = document.getElementById('login-remember');
       const alertBox = document.getElementById('login-alert');
       const submitBtn = document.getElementById('btn-login-submit');
+      const roleHint = document.getElementById('role-hint');
+      const signedInPanel = document.getElementById('signed-in-panel');
 
-      function showAlert(msg) {
+      /** Only allow same-site relative redirects from ?next= */
+      function safeNext() {
+        const next = new URLSearchParams(window.location.search).get('next') || '';
+        return /^\/(?![\/\\])[^\s]*$/.test(next) && !next.startsWith('/login') ? next : '';
+      }
+
+      function selectedRole() {
+        return form.querySelector('input[name="role"]:checked').value;
+      }
+
+      function showAlert(msg, type = 'error') {
         alertBox.hidden = false;
+        alertBox.className = `form-alert is-${type}`;
         alertBox.textContent = msg;
       }
 
-      function hideAlert() {
-        alertBox.hidden = true;
-        alertBox.textContent = '';
+      function setFieldError(input, msg) {
+        const errorEl = document.getElementById(input.getAttribute('aria-describedby'));
+        input.classList.toggle('is-invalid', Boolean(msg));
+        input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+        if (errorEl) errorEl.textContent = msg || '';
       }
 
-      async function doLogin(email, password) {
-        hideAlert();
+      function validate() {
+        let ok = true;
+        const email = emailInput.value.trim();
+        if (!email) { setFieldError(emailInput, 'Email is required.'); ok = false; }
+        else if (!EMAIL_PATTERN.test(email)) { setFieldError(emailInput, 'Enter a valid email address.'); ok = false; }
+        else setFieldError(emailInput, '');
+
+        if (!passwordInput.value) { setFieldError(passwordInput, 'Password is required.'); ok = false; }
+        else setFieldError(passwordInput, '');
+        return ok;
+      }
+
+      function redirectFor(user) {
+        const next = safeNext();
+        // Honour ?next= only when it belongs to this user's area (or is public).
+        const area = { CUSTOMER: '/customer/', PROVIDER: '/provider/', ADMIN: '/admin/', SUPER_ADMIN: '/superadmin/' };
+        const restricted = Object.values(area).some((p) => next.startsWith(p));
+        if (next && (!restricted || next.startsWith(area[user.role]))) return next;
+        return RoamlySession.dashboardFor(user.role);
+      }
+
+      async function doLogin(email, password, role) {
+        alertBox.hidden = true;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Signing in…';
-
         try {
-          const res = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+          const json = await apiRequest('POST', '/auth/login', {
+            email, password, role, remember: rememberInput.checked
           });
-          const json = await res.json();
-
-          if (!res.ok) {
-            throw new Error(json.error ? json.error.message : 'Login failed');
-          }
-
           const user = json.data;
-          localStorage.setItem('roamly_user', JSON.stringify(user));
-          if (user.role === 'PROVIDER') {
-            localStorage.setItem('roamly_provider_id', user.user_id);
-          }
-
-          // Redirect to appropriate portal
-          if (user.role === 'SUPER_ADMIN') {
-            window.location.href = 'superadmin/dashboard.html';
-          } else if (user.role === 'ADMIN') {
-            window.location.href = 'admin/dashboard.html';
-          } else if (user.role === 'PROVIDER') {
-            window.location.href = 'provider/dashboard.html';
-          } else {
-            window.location.href = 'customer/itinerary-planner.html';
-          }
+          RoamlySession.setUser(user);
+          showAlert(`Welcome back, ${user.name}! Opening your ${ROLE_META[user.role].label} portal…`, 'success');
+          setTimeout(() => { window.location.href = redirectFor(user); }, 500);
         } catch (err) {
-          showAlert(err.message);
+          showAlert(err.message || 'Sign in failed. Please try again.');
           submitBtn.disabled = false;
           submitBtn.textContent = 'Sign In';
         }
       }
 
-      form.addEventListener('submit', e => {
+      form.addEventListener('submit', (e) => {
         e.preventDefault();
-        doLogin(emailInput.value.trim(), passwordInput.value);
+        if (!validate()) return;
+        doLogin(emailInput.value.trim().toLowerCase(), passwordInput.value, selectedRole());
       });
 
-      // Quick 1-click test credentials buttons
-      document.querySelectorAll('.quick-role-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const email = btn.getAttribute('data-email');
-          emailInput.value = email;
-          passwordInput.value = 'demoPassword123';
-          doLogin(email, 'demoPassword123');
+      emailInput.addEventListener('blur', () => { if (emailInput.value) validate(); });
+      [emailInput, passwordInput].forEach((el) => el.addEventListener('input', () => setFieldError(el, '')));
+
+      form.querySelectorAll('input[name="role"]').forEach((r) => {
+        r.addEventListener('change', () => { roleHint.textContent = ROLE_HINTS[selectedRole()]; });
+      });
+
+      document.getElementById('password-toggle').addEventListener('click', (e) => {
+        const show = passwordInput.type === 'password';
+        passwordInput.type = show ? 'text' : 'password';
+        e.currentTarget.textContent = show ? 'Hide' : 'Show';
+        e.currentTarget.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      });
+
+      // Prefill from register page (?email=) and explain redirects from guarded pages.
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('email')) emailInput.value = params.get('email');
+      if (params.get('registered')) showAlert('Account created successfully. Please sign in.', 'success');
+      else if (safeNext()) showAlert('Please sign in to continue.', 'success');
+
+      // Already signed in? Offer to continue or switch account.
+      RoamlySession.refresh().then((user) => {
+        if (!user) return;
+        signedInPanel.hidden = false;
+        signedInPanel.innerHTML = `
+          You're signed in as <strong>${escapeHTML(user.name)}</strong> (${escapeHTML(ROLE_META[user.role].label)}).<br>
+          <a class="btn btn-primary btn-sm" href="${redirectFor(user)}">Continue to dashboard</a>
+          <button type="button" class="btn btn-outline btn-sm" id="switch-account-btn">Switch account</button>
+        `;
+        document.getElementById('switch-account-btn').addEventListener('click', async () => {
+          await RoamlySession.logout(null);
+          signedInPanel.hidden = true;
+          emailInput.focus();
         });
       });
     })();

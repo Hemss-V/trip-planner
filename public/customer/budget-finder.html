@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Budget Finder — Roamly</title>
+  <meta name="description" content="Enter your total budget, group size and trip length. Roamly finds packages within budget, budget savers with pocket money left over, and stretch upgrades.">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+</head>
+<body style="background-color: var(--bg-primary);">
+
+  <header class="site-header">
+    <div class="container nav-container">
+      <a href="../index.html" class="brand-logo">
+        <div class="brand-icon">🧭</div>
+        <span>Roamly</span>
+      </a>
+      <nav class="nav-links">
+        <a href="customer-dashboard.html">Dashboard</a>
+        <a href="../packages.html">Explore</a>
+        <a href="budget-finder.html" style="color: var(--primary); font-weight: 700;">Budget Finder</a>
+        <a href="my-bookings.html">My Bookings</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="../login.html" class="btn btn-outline btn-sm">Sign In</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container cust-page">
+    <div class="cust-page-header">
+      <span class="section-tag">⭐ Smart Discovery</span>
+      <h1>Smart Budget Finder</h1>
+      <p>Tell us what you can spend in total. We'll split it per traveler and sort every trip into what fits, what saves, and what's worth a small stretch.</p>
+    </div>
+
+    <div class="bf-layout">
+      <!-- Inputs -->
+      <form class="cust-card bf-panel" id="bf-form" novalidate aria-label="Budget preferences">
+        <div class="form-group">
+          <label class="form-label" for="bf-budget-range">Total Budget (all travelers)</label>
+          <div class="bf-budget-value" id="bf-budget-display">₹50,000</div>
+          <input type="range" class="bf-range" id="bf-budget-range" min="5000" max="300000" step="1000" value="50000">
+          <div class="bf-range-labels"><span>₹5K</span><span>₹1.5L</span><span>₹3L</span></div>
+          <input class="form-input" type="number" id="bf-budget-input" min="1000" max="10000000" step="500" value="50000" aria-label="Exact total budget in rupees" style="margin-top: 0.6rem;">
+        </div>
+
+        <div class="form-group">
+          <span class="form-label" id="bf-travelers-label">Number of Travelers</span>
+          <div class="stepper" role="group" aria-labelledby="bf-travelers-label">
+            <button type="button" id="bf-travelers-minus" aria-label="Fewer travelers">−</button>
+            <output id="bf-travelers" aria-live="polite">2</output>
+            <button type="button" id="bf-travelers-plus" aria-label="More travelers">+</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <span class="form-label" id="bf-duration-label">Trip Duration (Days)</span>
+          <div class="stepper" role="group" aria-labelledby="bf-duration-label">
+            <button type="button" id="bf-duration-minus" aria-label="Shorter trip">−</button>
+            <output id="bf-duration" aria-live="polite">Any</output>
+            <button type="button" id="bf-duration-plus" aria-label="Longer trip">+</button>
+          </div>
+          <label style="display: flex; gap: 0.45rem; align-items: center; font-size: 0.85rem; margin-top: 0.6rem; color: var(--text-secondary);">
+            <input type="checkbox" id="bf-flex" checked> Flexible by ±1 day
+          </label>
+        </div>
+
+        <div class="form-group">
+          <span class="form-label" id="bf-vibe-label">Preferred Vibe</span>
+          <div class="vibe-chips" id="bf-vibes" role="radiogroup" aria-labelledby="bf-vibe-label">
+            <button type="button" class="vibe-chip is-active" data-category="" role="radio" aria-checked="true">Any vibe</button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="bf-stretch">Stretch allowance: <span id="bf-stretch-display">20%</span></label>
+          <input type="range" class="bf-range" id="bf-stretch" min="5" max="50" step="5" value="20">
+          <div class="form-hint">How far above budget we may suggest premium upgrades.</div>
+        </div>
+      </form>
+
+      <!-- Results -->
+      <section aria-live="polite" aria-busy="false" id="bf-results-wrap">
+        <div class="bf-breakdown">
+          <div class="dash-stat">
+            <div class="dash-stat-label">Total Budget</div>
+            <div class="dash-stat-value" id="bd-total">–</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-label">Per Person</div>
+            <div class="dash-stat-value" id="bd-person">–</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-label">Per Person / Day</div>
+            <div class="dash-stat-value" id="bd-day">–</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-label">Matches</div>
+            <div class="dash-stat-value" id="bd-matches">–</div>
+          </div>
+        </div>
+
+        <div id="bf-error" class="error-banner" hidden></div>
+        <div id="bf-results"></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="cust-toast" id="toast" role="status" aria-live="polite"></div>
+
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <div>&copy; 2026 Roamly Tourism Platform. Local Tourism Package Booking System.</div>
+      <div>Member 1: Smart Budget-Based Package Finder</div>
+    </div>
+  </footer>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/budget-finder.js"></script>
+</body>
+</html>
