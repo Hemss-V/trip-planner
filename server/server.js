@@ -2037,6 +2037,26 @@ const server = http.createServer(async (req, res) => {
   } else {
     console.log('Database connected successfully to MySQL.');
     try {
+      const [tables] = await pool.query("SHOW TABLES LIKE 'users'");
+      if (tables.length === 0) {
+        console.log('Database tables missing. Bootstrapping schema and demo seed data...');
+        const schemaPath = path.join(__dirname, '..', 'database', 'schema.sql');
+        const seedPath = path.join(__dirname, '..', 'database', 'seed-demo-data.sql');
+        if (fs.existsSync(schemaPath)) {
+          const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+          await pool.query(schemaSql);
+          console.log('Schema applied successfully.');
+        }
+        if (fs.existsSync(seedPath)) {
+          const seedSql = fs.readFileSync(seedPath, 'utf8');
+          await pool.query(seedSql);
+          console.log('Demo seed data applied successfully.');
+        }
+      }
+    } catch (bootErr) {
+      console.warn('Database bootstrap notice:', bootErr.message);
+    }
+    try {
       await member1.ensureMember1Schema();
     } catch (err) {
       console.error('WARNING: Schema migration failed:', err.message);
