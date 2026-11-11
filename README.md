@@ -1,110 +1,319 @@
-# Roamly: Local Tourism Package Booking System
+# 🧭 Roamly: Local Tourism Package Booking System
 
-A full-stack tourism platform for discovering and booking local tour packages across India. Built without frameworks, using Vanilla HTML/CSS/JavaScript (Fetch API), pure Node.js (`http`, `url`, `fs`, `path`) and MySQL 8.0+.
+[![Live Demo](https://img.shields.io/badge/Demo-Live_on_Railway-success?style=for-the-badge&logo=railway)](https://web-production-22049391.up.railway.app)
+[![Node.js](https://img.shields.io/badge/Node.js-Pure_Built--in_Modules_(No_Express)-339933?style=for-the-badge&logo=nodedotjs)](https://nodejs.org)
+[![MySQL](https://img.shields.io/badge/Database-MySQL_8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com)
+[![Frontend](https://img.shields.io/badge/Frontend-Vanilla_HTML5_/_CSS3_/_JavaScript-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org)
 
-## Features
+A production-grade, full-stack tourism platform designed for discovering, planning, and booking curated regional tour packages across India. Built strictly **without third-party frameworks** — utilizing pure built-in Node.js modules (`http`, `url`, `crypto`, `fs`, `path`), native Vanilla JavaScript DOM manipulation & Fetch API, and a normalized MySQL 8 relational schema with foreign key constraints and ACID-compliant transactions.
 
-**Authentication (Member 1)**
-- Public registration page (`register.html`) for `CUSTOMER` and `PROVIDER` roles.
-- Client-side validation before submitting to `POST /api/auth/register`:
-  - Email format check
-  - Indian mobile number (optional `+91`, starts with 6-9, 10 digits)
-  - Password of at least 8 characters with an uppercase letter, a lowercase letter and a digit
-  - Password confirmation match
-- Inline field errors and a form-level alert for server responses.
+---
 
-**Discovery (Member 2)**
-- Hero search with category selector and quick-search chips.
-- Destination cards with live package counts and starting prices (₹).
-- Package filters by keyword, destination, category, price range, duration and departure date.
-- Sorting by recommended, price and duration, with removable filter tags.
-- Package details as a slide-in drawer and as a standalone page (`package-details.html?id=:id`), with a day-by-day itinerary and live seat availability.
+## 🌐 Live Hosted Application
 
-**Provider Dashboard and Package Administration (Member 3)**
-- Full Provider Portal suite: My Packages, Edit Package, Package Bookings, Provider Reports.
-- Package CRUD: add, edit, and safely archive/delete packages.
-- Day-by-day Itinerary Builder & Activity Manager for morning, afternoon, and evening activities.
-- Live departure date and seat capacity manager (`package_availability`).
-- Customer booking management: view reservations and update status to `CONFIRMED` or `COMPLETED`.
-- Revenue and performance statistics by package and monthly trends.
-- Custom tour request review and acceptance/rejection from travelers.
+### 🔗 **[https://web-production-22049391.up.railway.app](https://web-production-22049391.up.railway.app)**
 
-**Central Administrator Portal (Member 3)**
-- Central Admin dashboard with platform-wide health metrics.
-- Package moderation: approve, reject (with feedback), or pause/disable packages.
-- Destination & Category CRUD management with integrity checks.
-- User account management: verify and approve pending providers, block/unblock users.
-- System-wide revenue, booking volume, and operator performance analytics.
+> **Hosted Infrastructure**: Deployed on Railway Cloud with an automated Node.js container service, a managed MySQL 8 database service with volume persistence, automatic database bootstrapping, and end-to-end SSL encryption.
 
-**Super Administrator Portal (Member 3)**
-- Super Admin governance console.
-- Admin account creation and granular permission delegation (`admin_permissions`).
-- Filterable system activity audit logs (`system_logs`) tracking logins, moderation, and account status updates.
+---
 
-**Personalized Itinerary Planner (Member 3 — Special Feature)**
-- Interactive customer trip planner (`public/customer/itinerary-planner.html`).
-- Destination & travel dates selection.
-- Travel pace (Relaxed, Moderate, Adventure) and Interests (Heritage, Nature, Food, Photography).
-- Accommodation comfort tier selection (Budget, Standard, Luxury).
-- Day-by-day morning, afternoon, and evening activity builder with add/remove day controls.
-- Rule-based preference recommendation logic matching destination attractions.
-- Live dynamic cost estimator calculating activities, accommodation, and transport in real time.
-- Save custom itineraries to customer profile.
-- Clean printable voucher / PDF layout (`window.print()`).
-- Direct custom booking request submission to local tour providers.
+## 📸 Application Showcase & Screenshots
 
-**Reservation & Booking Engine (Member 2)**
-- Step-by-step checkout: date picker from live availability, traveler count stepper, lead passenger form.
-- Atomic booking creation: seat decrement, booking record, payment record in a single transaction.
-- Four payment methods simulated: UPI, Credit/Debit Card, Net Banking, Pay on Arrival.
-- Ticket voucher modal with booking ID and printable summary.
+### 1. Home Discovery & Regional Spotlight
+Explore curated tour packages, royal heritage circuits, tranquil backwaters, and Himalayan escapes with live category counts and starting prices.
+![Home Discovery](docs/screenshots/home.png)
 
-**Promotional Coupon & Discount System (Member 2 — Special Feature)**
-- Active coupon listing via `GET /api/coupons`.
-- Real-time AJAX validation: checks expiry, usage limit, minimum booking amount; returns computed discount.
-- Coupons: `EXPLORE10` (10% off), `FESTIVE25` (25% off), `ROAMLY1000` (₹1,000 flat), `EARLYBIRD` (15% off).
-- Order summary recalculates live on coupon apply/remove.
+---
 
-**Booking History & Cancellations (Member 2)**
-- Customer booking history page with metrics banner (total trips, amount spent, upcoming bookings).
-- Filter tabs: All / Upcoming / Completed / Cancelled.
-- Cancellation workflow with modal confirmation; seats are restocked automatically.
-- Cancellation refund status recorded in `payments` table.
+### 2. Interactive Package Catalog & Multi-Criteria Filtering
+Filter packages dynamically by search query, destination, travel style, budget range, duration presets, and departure dates without full page reloads.
+![Explore Packages](docs/screenshots/packages.png)
 
-**Verified Reviews & Star Ratings (Member 2)**
-- Review submission modal (1–5 stars + comment) locked to confirmed bookings only.
-- Reviews display on `package-details.html` with average rating and total count.
+---
 
-## Tech Stack
+### 3. Package Details, Day-by-Day Itineraries & Verified Reviews
+Transparent itinerary timeline highlighting morning, afternoon, and evening excursions, operator credentials, live departure seat calendar, and customer star reviews.
+![Package Details](docs/screenshots/package-details.png)
 
-| Layer | Technology |
+---
+
+### 4. Step-by-Step Reservation & Checkout Engine
+Select confirmed departure dates, adjust traveler counts with real-time seat decrement validation, apply promotional coupons, and choose from simulated payment gateways.
+![Booking Checkout](docs/screenshots/booking.png)
+
+---
+
+### 5. Smart Budget-Based Package Finder
+A financial optimization tool: input total budget, group size, and preferred travel pace to view categorized matches (*Direct Fits*, *Budget Savers* with leftover pocket allowance, and *Stretch Matches*).
+![Smart Budget Finder](docs/screenshots/budget-finder.png)
+
+---
+
+### 6. Personalized Day-by-Day Itinerary Planner
+Interactive trip designer: customize destinations, travel style, accommodation comfort tiers, and daily activities with live dynamic cost estimates and direct submission to local tour providers.
+![Itinerary Planner](docs/screenshots/itinerary-planner.png)
+
+---
+
+### 7. Customer Dashboard, Booking History & Cancellations
+Track past, upcoming, and cancelled journeys with summary metric banners, booking vouchers, one-click cancellations with automatic seat restock, and 5-star review submissions.
+![Customer Bookings](docs/screenshots/my-bookings.png)
+
+---
+
+### 8. Tour Provider Operations Portal
+Dedicated portal for registered tour operators to publish tours, manage day-by-day itineraries, schedule departure dates, monitor reservations, review custom travel inquiries, and track monthly earnings.
+![Provider Portal](docs/screenshots/provider-dashboard.png)
+
+---
+
+### 9. Central Administrator & Super Admin Governance Console
+Centralized platform administration: moderate submitted packages with feedback notes, manage destinations and categories (CRUD), activate/suspend user accounts, inspect the system audit trail, and delegate admin permissions.
+![Admin Console](docs/screenshots/admin-dashboard.png)
+
+---
+
+### 10. Unified Multi-Role Authentication
+Single sign-in screen featuring automatic role detection for Customers, Tour Providers, Administrators, and Super Administrators with HMAC-signed session cookies and "Remember Me" persistence.
+![Unified Sign In](docs/screenshots/login.png)
+
+---
+
+## 🔑 Demo Test Credentials
+
+All demo accounts share the password: **`demoPassword123`**
+
+| Role | Email | Password | Direct Portal Link |
+|---|---|---|---|
+| **Customer** | `aarav@customer.in` | `demoPassword123` | [/customer/customer-dashboard.html](https://web-production-22049391.up.railway.app/customer/customer-dashboard.html) |
+| **Customer (Alt)** | `priya@customer.in` | `demoPassword123` | [/customer/customer-dashboard.html](https://web-production-22049391.up.railway.app/customer/customer-dashboard.html) |
+| **Tour Provider** | `heritage@roamly.in` | `demoPassword123` | [/provider/dashboard.html](https://web-production-22049391.up.railway.app/provider/dashboard.html) |
+| **Administrator** | `admin@roamly.in` | `demoPassword123` | [/admin/dashboard.html](https://web-production-22049391.up.railway.app/admin/dashboard.html) |
+| **Super Admin** | `superadmin@roamly.in` | `demoPassword123` | [/superadmin/dashboard.html](https://web-production-22049391.up.railway.app/superadmin/dashboard.html) |
+
+---
+
+## 🌟 Comprehensive Features Breakdown
+
+### 🎯 Public Discovery & Catalog
+- **Hero Search Engine**: Live keyword lookup across tour titles, cities, and landmarks with category filters and quick search tags.
+- **Dynamic Catalog Filters**: Filter by destination, category, price range slider, duration checkboxes (1-3 days, 4-7 days, 8+ days), departure calendar, and sort options (Recommended, Price Low-to-High, Price High-to-Low, Duration).
+- **Package Details Drawer & Standalone View**: Complete trip breakdown including operator credentials, day-by-day vertical timeline itineraries, and guaranteed departure dates.
+
+### 💳 Reservation & Booking Engine
+- **Atomic Booking Lifecycle**: Validates seat availability, executes atomic seat decrements in `package_availability`, and writes to `bookings`, `payments`, and `system_logs` in a single transaction.
+- **Payment Simulation Gateway**: Supports 4 payment options (UPI Virtual Payment Address, Credit/Debit Cards, Net Banking, and Pay on Arrival).
+- **Printable Booking Voucher**: Generates booking reference code (`ROAM-XXXXXX`), customer receipt modal, and printable confirmation.
+
+### 🏷️ Promotional Coupon & Discount System
+- **Real-Time AJAX Validation**: Validates coupon codes against expiration dates, usage limits, and minimum booking thresholds before checkout.
+- **Active Demo Coupons**:
+  - `EXPLORE10`: 10% off (Min booking: ₹500)
+  - `FESTIVE25`: 25% off (Min booking: ₹1,000, Max discount: ₹5,000)
+  - `ROAMLY1000`: Flat ₹1,000 instant discount (Min booking: ₹5,000)
+  - `EARLYBIRD`: 15% off (Min booking: ₹2,000)
+
+### 📋 Customer Profile, Trips & Reviews
+- **Booking Management**: Filter trips by *All*, *Upcoming*, *Completed*, and *Cancelled*.
+- **Self-Service Cancellation**: Automatically restocks seats to `package_availability`, updates status to `CANCELLED`, and logs refund confirmation.
+- **Verified Reviews**: 5-star rating system with written feedback gated strictly to verified, non-cancelled customer bookings.
+- **Profile & Address Book**: Manage contact details, scrypt-hashed password updates, and multiple addresses (`HOME`, `BILLING`, `DELIVERY`).
+
+### 💡 Smart Budget-Based Package Finder
+- Calculates per-person expense breakdown based on group size and budget limit.
+- Intelligent tiering algorithm categorizes results into:
+  - **Direct Fits (Within Budget)**: Packages perfectly matching criteria.
+  - **Budget Savers**: High-value tours costing $\le 80\%$ of budget, displaying leftover savings.
+  - **Stretch Matches**: Premium upgrades slightly above budget with enhanced inclusions.
+
+### 🗺️ Personalized Itinerary Planner
+- Multi-step interactive custom trip designer: select destination, duration, pace (Relaxed, Moderate, Adventure), and interest focus (Heritage, Nature, Food, Photography).
+- Day-by-day activity builder with morning, afternoon, and evening recommendations.
+- Dynamic cost estimator calculating activity expenses, hotel tiers (Budget, Standard, Luxury), and transport.
+- Direct submission of custom requests to registered local operators.
+
+### 🛡️ Provider Portal & Package Administration
+- **Package Management**: Add new packages, update content/pricing/capacity, and archive packages.
+- **Itinerary Editor**: Manage daily schedules and activity descriptions.
+- **Availability Manager**: Schedule new departure dates and allocate seat quotas.
+- **Bookings & Requests**: View customer reservations and review/respond to custom itinerary requests.
+- **Financial Analytics**: Real-time revenue metrics, booking count trends, and customer review aggregates.
+
+### ⚖️ Central Administrator & Super Admin Console
+- **Quality Moderation**: Review and approve/reject newly created tour packages with feedback notes.
+- **Catalog CRUD**: Full create, update, and delete management for destinations and travel categories.
+- **User Governance**: Approve pending provider registrations or suspend accounts.
+- **Super Admin Security**: Provision administrator accounts, delegate specific permission flags (`MODERATE_PACKAGES`, `MANAGE_DESTINATIONS`, `MANAGE_CATEGORIES`, `MANAGE_USERS`, `VIEW_REPORTS`), and monitor the real-time security audit trail (`system_logs`).
+
+---
+
+## 🛠️ Architecture & Tech Stack
+
+```
+┌────────────────────────────────────────────────────────┐
+│                        BROWSER                         │
+│  HTML5 + Modern CSS3 (Grid/Flexbox/CSS Variables)      │
+│  Vanilla JavaScript (Fetch API, DOM Events, No React)  │
+└───────────────────────────┬────────────────────────────┘
+                            │ HTTP / JSON REST APIs
+┌───────────────────────────▼────────────────────────────┐
+│                  PURE NODE.JS SERVER                   │
+│  http, url, crypto (scrypt + HMAC-SHA256), fs, path    │
+│  Strictly Zero Express / Zero Third-Party Frameworks   │
+└───────────────────────────┬────────────────────────────┘
+                            │ Connection Pool (mysql2/promise)
+┌───────────────────────────▼────────────────────────────┐
+│                    MYSQL 8.0+ DATABASE                 │
+│  Normalized Relational Schema (14 Tables)              │
+│  Foreign Keys, Cascades, Indexes, Transactions         │
+└────────────────────────────────────────────────────────┘
+```
+
+| Layer | Implementation Details |
 |---|---|
-| Frontend | HTML5, CSS3, Vanilla JavaScript |
-| Communication | Fetch API (AJAX) |
-| Backend | Node.js built-in modules only (no Express) |
-| Database | MySQL 8.0+ with `mysql2/promise` |
+| **Frontend** | Pure Semantic HTML5, Custom CSS3 Design System with CSS variables, Vanilla JavaScript ES6+ (No React, Vue, Angular, or jQuery) |
+| **Backend** | Pure Node.js built-in runtime (`http.createServer`, `crypto`, `url`, `fs`, `path`). Zero framework dependencies (no Express, no Fastify). |
+| **Authentication** | `crypto.scrypt` password hashing + salt, signed stateless HMAC-SHA256 HttpOnly session cookies with `RoamlySession` client-side guards. |
+| **Database** | MySQL 8.0+ with connection pooling (`mysql2/promise`), automated database creation, and startup schema bootstrapping. |
+| **Hosting** | Railway Cloud (Automated container deployment, managed MySQL, private service mesh networking, volume storage, and SSL). |
 
-## Database
+---
 
-Schema: `database/schema.sql` (database name `tourism_booking`)
+## 🗄️ Database Architecture
 
-| Area | Tables |
-|---|---|
-| Users and access | `users`, `addresses`, `admin_permissions`, `system_logs` |
-| Catalog | `destinations`, `categories`, `tour_packages`, `package_itinerary`, `package_availability` |
-| Transactions | `bookings`, `payments`, `reviews` |
-| Promotions | `coupons` |
+Schema definition located in [`database/schema.sql`](database/schema.sql) and demo data in [`database/seed-demo-data.sql`](database/seed-demo-data.sql).
 
-Tables use primary and foreign keys with constraints. Users have one of four roles: `CUSTOMER`, `PROVIDER`, `ADMIN` or `SUPER_ADMIN`.
+```
+                      ┌───────────────┐
+                      │     users     │◄──────────────┐
+                      └───────┬───────┘               │
+                              │ 1:N                   │ 1:N
+            ┌─────────────────┼─────────────────┐     │
+            │                 │                 │     │
+            ▼                 ▼                 ▼     │
+      ┌───────────┐    ┌─────────────┐   ┌────────────┴────────┐
+      │ addresses │    │ tour_packages│   │ custom_itineraries  │
+      └───────────┘    └──────┬──────┘   └─────────────────────┘
+                              │ 1:N
+            ┌─────────────────┼────────────────────────┐
+            ▼                 ▼                        ▼
+┌───────────────────────┐┌─────────┐         ┌───────────────────┐
+│ package_availability  ││ reviews │         │ package_itinerary │
+└───────────┬───────────┘└─────────┘         └───────────────────┘
+            │ 1:N
+            ▼
+      ┌───────────┐         ┌───────────┐
+      │  bookings │────────►│  payments │
+      └─────┬─────┘ 1:1     └───────────┘
+            │
+            ▼ (Optional)
+      ┌───────────┐
+      │  coupons  │
+      └───────────┘
+```
 
-## Getting Started
+### Relational Tables Summary (14 Tables)
 
-**1. Install dependencies**
+| Area | Tables | Purpose |
+|---|---|---|
+| **User Identity & Security** | `users`, `addresses`, `admin_permissions`, `system_logs` | User profiles, address books, RBAC permission delegation, and audit logging. |
+| **Catalog & Scheduling** | `destinations`, `categories`, `tour_packages`, `package_itinerary`, `package_availability` | Destinations, themes, package details, multi-day schedules, and live seat dates. |
+| **Transactional Operations** | `bookings`, `payments`, `reviews` | Customer reservations, payment transactions, and verified star ratings. |
+| **Promotions & Custom Plans** | `coupons`, `custom_itineraries` | Discount vouchers, custom day-by-day itinerary requests. |
+
+---
+
+## 🔌 REST API Reference
+
+### 🔐 Authentication & Session
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Register new customer or provider account |
+| `POST` | `/api/auth/login` | Sign in (scrypt verification, HMAC session cookie) |
+| `POST` | `/api/auth/logout` | Revoke active session token |
+| `GET` | `/api/auth/me` | Inspect current session and user role |
+
+### 📦 Catalog & Discovery
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/destinations` | List destinations with package counts & starting price |
+| `GET` | `/api/destinations/:id` | Get destination details and approved packages |
+| `GET` | `/api/categories` | List travel themes and categories |
+| `GET` | `/api/packages` | Filterable and sortable catalog (search, price, duration, date) |
+| `GET` | `/api/packages/:id` | Full package details, day-by-day itinerary, and availability |
+| `POST`| `/api/packages/budget-finder` | Smart budget optimization finder with grouped tiers |
+
+### 🛒 Bookings, Payments, Coupons & Reviews
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/coupons` | List all active promotional coupons |
+| `POST` | `/api/coupons/validate` | Validate coupon code against cart amount |
+| `POST` | `/api/bookings` | Create reservation (atomic seat decrement + payment record) |
+| `GET` | `/api/customer/bookings` | Booking history for authenticated customer |
+| `GET` | `/api/bookings/:id` | Single booking voucher and receipt data |
+| `POST` | `/api/bookings/:id/cancel` | Cancel booking and restock availability seats |
+| `POST` | `/api/reviews` | Submit verified customer star review |
+| `GET` | `/api/packages/:id/reviews` | Retrieve package reviews, average rating, and count |
+
+### 🛠️ Provider Management
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/provider/dashboard` | Provider overview metrics and package status |
+| `GET`/`POST` | `/api/provider/packages` | List provider packages / Create new package |
+| `PUT`/`DELETE`| `/api/provider/packages/:id` | Update package details / Archive package |
+| `PATCH` | `/api/provider/packages/:id/status` | Toggle package status (`ACTIVE`/`INACTIVE`) |
+| `GET`/`POST` | `/api/provider/packages/:id/itinerary` | Retrieve / Add day-by-day itinerary items |
+| `GET`/`POST` | `/api/provider/packages/:id/availability` | Retrieve / Add departure dates and seat quotas |
+| `GET` | `/api/provider/bookings` | Customer bookings placed for provider tours |
+| `PATCH` | `/api/provider/bookings/:id/status` | Update booking status (`CONFIRMED`, `COMPLETED`) |
+| `GET` | `/api/provider/reports` | Revenue and booking volume reports |
+| `GET`/`PATCH` | `/api/provider/custom-requests` | View and accept/reject custom traveler inquiries |
+
+### ⚖️ Central Admin & Super Admin
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/admin/dashboard` | Platform metrics (packages, users, platform revenue) |
+| `GET` | `/api/admin/packages` | Moderation queue for submitted packages |
+| `PATCH` | `/api/admin/packages/:id/status` | Approve, reject with notes, or pause packages |
+| `GET`/`POST`/`PUT`/`DELETE` | `/api/admin/destinations` | CRUD operations for travel destinations |
+| `GET`/`POST`/`PUT`/`DELETE` | `/api/admin/categories` | CRUD operations for package categories |
+| `GET`/`PATCH` | `/api/admin/users` | Manage customer & provider account statuses |
+| `GET`/`POST` | `/api/superadmin/admins` | List administrators / Provision new administrator |
+| `PATCH` | `/api/superadmin/admins/:id/permissions` | Granular permission delegation |
+| `GET` | `/api/superadmin/logs` | Security activity audit logs (`system_logs`) |
+
+### 🗺️ Custom Itinerary Planner
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET`/`POST` | `/api/customer/itineraries` | Retrieve saved custom plans / Save new plan |
+| `GET`/`DELETE`| `/api/customer/itineraries/:id` | View plan details / Delete plan |
+| `POST` | `/api/customer/itineraries/:id/submit` | Submit custom plan to local tour provider |
+
+---
+
+## 💻 Local Installation & Setup
+
+### Prerequisites
+- **Node.js** v18+ (tested on v22)
+- **MySQL Server** 8.0+
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/Hemss-V/trip-planner.git
+cd trip-planner
+```
+
+### 2. Install dependencies
 ```bash
 npm install
 ```
 
-**2. Configure the environment.** Copy `.env.example` to `.env` and fill in your MySQL credentials:
+### 3. Configure environment variables
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+Update `.env` with your local MySQL credentials:
 ```env
 PORT=3000
 DB_HOST=localhost
@@ -112,141 +321,92 @@ DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=your_mysql_password
 DB_NAME=tourism_booking
+SESSION_SECRET=your_long_random_session_secret_key_here
 ```
 
-**3. Create the database.** Run `database/schema.sql` in MySQL Workbench or the MySQL CLI:
+### 4. Database Initialization
+You can either let the server auto-bootstrap the database on first run, or run the SQL files manually:
 ```bash
 mysql -u root -p < database/schema.sql
+mysql -u root -p tourism_booking < database/seed-demo-data.sql
 ```
+*(Or run `npm run seed` to populate demo data).*
 
-**4. Seed demo data** (destinations, categories, packages, itineraries, availability):
-```bash
-npm run seed
-```
-
-**5. Start the server**
+### 5. Start the Application
 ```bash
 npm start
 ```
-Open **http://localhost:3000**. The registration page is at **http://localhost:3000/register.html**.
+Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
-## API Reference
+---
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/auth/register` | Register a customer or provider |
-| `GET` | `/api/destinations` | List destinations with package counts and starting price |
-| `GET` | `/api/destinations/:id` | Destination details and its approved packages |
-| `GET` | `/api/categories` | List categories with package counts |
-| `GET` | `/api/packages` | Filterable, sortable package catalog |
-| `GET` | `/api/packages/:id` | Package details, itinerary and availability |
-
-**Package query parameters:** `search`/`q`, `destination`, `category`, `minPrice`, `maxPrice`, `minDuration`, `maxDuration`, `date` (YYYY-MM-DD), `sort` (`recommended`, `price_asc`, `price_desc`, `duration_asc`, `duration_desc`).
-
-| `GET` | `/api/coupons` | List active promotional coupons |
-| `POST` | `/api/coupons/validate` | Validate a coupon code and compute discount |
-| `POST` | `/api/bookings` | Create a booking (atomic seat decrement + payment record) |
-| `GET` | `/api/customer/bookings` | Booking history for a customer (query: `customer_id`) |
-| `GET` | `/api/bookings/:id` | Single booking detail for voucher / receipt |
-| `POST` | `/api/bookings/:id/cancel` | Cancel a booking and restock seats |
-| `POST` | `/api/reviews` | Submit a verified star review for a completed booking |
-| `GET` | `/api/packages/:id/reviews` | Package reviews with average rating and count |
-
-Provider package administration and availability endpoints are implemented in `server/server.js` and `server/member3_handlers.js`.
-
-### Member 3 Additional API Endpoints
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/provider/packages` | List all packages for provider with itinerary, booking, and revenue counts |
-| `PUT` | `/api/provider/packages/:id` | Update package title, details, duration, price, capacity |
-| `DELETE` | `/api/provider/packages/:id` | Delete package or safely archive if bookings exist |
-| `GET` | `/api/provider/packages/:id/itinerary` | Get day-by-day itinerary schedule |
-| `POST` | `/api/provider/packages/:id/itinerary` | Add or update day activity |
-| `DELETE` | `/api/provider/itinerary/:id` | Remove itinerary day activity |
-| `GET` | `/api/provider/bookings` | Provider bookings list with customer details |
-| `PATCH` | `/api/provider/bookings/:id/status` | Update booking status (`CONFIRMED`, `COMPLETED`) |
-| `GET` | `/api/provider/reports` | Provider financial metrics and package performance |
-| `GET` | `/api/provider/custom-requests` | Inquiries submitted from Itinerary Planner |
-| `PATCH` | `/api/provider/custom-requests/:id/status`| Accept or reject custom inquiry |
-| `GET` | `/api/admin/dashboard` | Admin overview with package, user, and financial stats |
-| `GET` | `/api/admin/packages` | Filterable package list for quality moderation |
-| `PATCH` | `/api/admin/packages/:id/status` | Admin moderate package (`APPROVED`, `REJECTED`, `INACTIVE`) |
-| `GET`/`POST` | `/api/admin/destinations` | Destinations management (CRUD) |
-| `PUT`/`DELETE`| `/api/admin/destinations/:id` | Update / delete destination |
-| `GET`/`POST` | `/api/admin/categories` | Categories management (CRUD) |
-| `PUT`/`DELETE`| `/api/admin/categories/:id` | Update / delete category |
-| `GET` | `/api/admin/users` | List customer & provider accounts |
-| `PATCH` | `/api/admin/users/:id/status` | Approve provider, block/unblock user account |
-| `GET` | `/api/admin/reports` | Platform-wide financial reports & destination breakdown |
-| `GET`/`POST` | `/api/superadmin/admins` | List all administrators / create new administrator |
-| `PATCH` | `/api/superadmin/admins/:id/permissions`| Update admin access permissions |
-| `PATCH` | `/api/superadmin/admins/:id/status` | Block or unblock administrator |
-| `GET` | `/api/superadmin/logs` | Security activity audit trail (`system_logs`) |
-| `GET`/`POST` | `/api/customer/itineraries` | View customer saved itineraries / create custom plan |
-| `GET`/`DELETE`| `/api/customer/itineraries/:id`| Retrieve single plan / delete custom plan |
-| `POST` | `/api/customer/itineraries/:id/submit`| Submit custom plan request to local operator |
-
-### Member 1: Authentication, Customer Profile & Smart Budget Finder
-
-Implemented in `server/member1_handlers.js`. Sign-in sets an HttpOnly, HMAC-signed `roamly_session` cookie (set `SESSION_SECRET` in `.env`; without it, sessions reset on every server restart). `public/js/api.js` adds the signed-in user's name, role badge, dashboard shortcut and Sign Out button to the header of every page.
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/auth/login` | Sign in (scrypt password check). Body: `email`, `password`, optional `role` (`AUTO`/`CUSTOMER`/`PROVIDER`/`ADMIN`/`SUPER_ADMIN`), `remember` |
-| `POST` | `/api/auth/logout` | Revoke the session and clear the cookie |
-| `GET` | `/api/auth/me` | Current signed-in user (401 when signed out) |
-| `GET`/`PUT` | `/api/customer/profile` | View profile + booking stats / update `name`, `mobile`, or password (`current_password` + `new_password`) |
-| `GET`/`POST` | `/api/customer/addresses` | List / add addresses (`HOME`, `BILLING`, `DELIVERY`, `OTHER`) |
-| `PUT`/`DELETE` | `/api/customer/addresses/:id` | Edit / delete an address (also used to change the default address) |
-| `POST` | `/api/packages/budget-finder` | Body: `budget`, `travelers`, `duration_days` (0 = any), `duration_flex`, `category_id`, `stretch_pct`. Returns `within_budget`, `budget_saver` (costs at most 80% of budget) and `stretch_match` tiers |
-
-Pages: `login.html`, `customer/customer-dashboard.html`, `customer/profile.html`, `customer/budget-finder.html`.
-
-The server adds the `address_type` and `is_default` columns to an existing `addresses` table automatically at startup. Seeded demo accounts accept only `demoPassword123`; their placeholder hash is replaced with a real scrypt hash on first sign-in.
-
-### Demo Test Credentials for Presentation & Evaluation
-
-| Role | Email | Password | Direct Portal URL |
-|---|---|---|---|
-| **Customer** | `aarav@customer.in` | `demoPassword123` | [customer/customer-dashboard.html](http://localhost:3000/customer/customer-dashboard.html) |
-| **Tour Provider** | `heritage@roamly.in` | `demoPassword123` | [provider/dashboard.html](http://localhost:3000/provider/dashboard.html) |
-| **Administrator** | `admin@roamly.in` | `demoPassword123` | [admin/dashboard.html](http://localhost:3000/admin/dashboard.html) |
-| **Super Admin** | `superadmin@roamly.in` | `demoPassword123` | [superadmin/dashboard.html](http://localhost:3000/superadmin/dashboard.html) |
-
-## Project Structure
+## 📂 Project Structure
 
 ```
 trip-planner/
-├── .env
-├── package.json
+├── .env.example                # Sample environment variables
+├── package.json                # Project manifest and scripts
+├── README.md                   # System documentation & showcase
+├── docs/
+│   └── screenshots/            # High-resolution application screenshots
+│       ├── home.png
+│       ├── packages.png
+│       ├── package-details.png
+│       ├── booking.png
+│       ├── budget-finder.png
+│       ├── itinerary-planner.png
+│       ├── my-bookings.png
+│       ├── login.png
+│       ├── provider-dashboard.png
+│       └── admin-dashboard.png
 ├── database/
-│   ├── schema.sql              # MySQL schema (all tables + custom_itineraries)
-│   └── seed-demo-data.sql      # Seed data (users, packages, bookings, logs)
+│   ├── schema.sql              # Normalized relational MySQL schema (14 tables)
+│   └── seed-demo-data.sql      # Demo dataset (destinations, packages, users, bookings)
 ├── server/
-│   ├── server.js               # Pure Node.js HTTP server and router
-│   ├── member3_handlers.js     # Member 3 REST API handlers & audit logger
-│   ├── seed.js                 # Database seed runner
-│   ├── test_member3.js         # Automated backend test suite
-│   └── config/db.js            # MySQL connection pool
+│   ├── server.js               # Pure Node.js HTTP server, router & static file server
+│   ├── member1_handlers.js     # Auth, session, profile & budget finder API handlers
+│   ├── member3_handlers.js     # Provider, admin, super admin & itinerary handlers
+│   ├── seed.js                 # Database seed script runner
+│   └── config/
+│       └── db.js               # MySQL2 connection pool with auto-database creation
 └── public/
-    ├── index.html, destinations.html, packages.html, package-details.html
-    ├── login.html, register.html
-    ├── provider/
-    │   └── dashboard.html      # Provider Portal (Packages, Bookings, Requests, Reports)
-    ├── admin/
-    │   ├── dashboard.html      # Central Admin Console (Moderation, CRUD, Users, Reports)
-    │   └── admin.js            # Admin Controller
-    ├── superadmin/
-    │   ├── dashboard.html      # Super Admin Portal (Admins, Permissions, Audit Logs)
-    │   └── superadmin.js       # Super Admin Controller
+    ├── index.html              # Home landing page with search & regional showcase
+    ├── destinations.html       # Destinations directory
+    ├── packages.html           # Tour package catalog with live multi-criteria filtering
+    ├── package-details.html    # Package detail page with timeline itinerary & reviews
+    ├── login.html              # Unified multi-role sign-in portal
+    ├── register.html           # Registration for customers & tour providers
     ├── customer/
-    │   ├── booking.html        # Booking checkout
-    │   ├── my-bookings.html    # Customer booking history & reviews
-    │   └── itinerary-planner.html # Personalized Day-by-Day Itinerary Planner
-    ├── css/styles.css          # Design system & styles
+    │   ├── booking.html        # Step-by-step reservation checkout & payment simulation
+    │   ├── my-bookings.html    # Booking history, cancellation & review submission
+    │   ├── budget-finder.html  # Smart Budget-Based Package Finder
+    │   ├── itinerary-planner.html # Personalized Day-by-Day Itinerary Planner
+    │   ├── customer-dashboard.html# Customer personal dashboard
+    │   └── profile.html        # Profile & address management
+    ├── provider/
+    │   └── dashboard.html      # Tour provider operations portal
+    ├── admin/
+    │   ├── dashboard.html      # Central administration & quality moderation console
+    │   └── admin.js            # Admin controller
+    ├── superadmin/
+    │   ├── dashboard.html      # Super administrator governance & audit logs
+    │   └── superadmin.js       # Super admin controller
+    ├── css/
+    │   └── styles.css          # Design system, layout, responsive grid & components
     └── js/
-        ├── api.js, app.js, packages.js, register.js
-        ├── provider-dashboard.js   # Provider Portal controller
-        └── itinerary-planner.js    # Personalized Itinerary Planner controller
+        ├── api.js              # Global API client, session management & header injection
+        ├── app.js              # Home discovery controller
+        ├── packages.js         # Package catalog filtering controller
+        ├── package-details.js  # Package details & reviews controller
+        ├── booking.js          # Booking checkout & coupon controller
+        ├── my-bookings.js      # Customer bookings & cancellations controller
+        ├── budget-finder.js    # Smart budget finder controller
+        ├── itinerary-planner.js# Personalized itinerary planner controller
+        ├── provider-dashboard.js# Provider portal controller
+        └── customer-profile.js # Customer profile & address controller
 ```
+
+---
+
+## 📄 License
+This project is licensed under the [ISC License](LICENSE).
