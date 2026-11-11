@@ -1,5 +1,5 @@
 /**
- * Roamly — Member 2: Customer Booking History & Feedback Controller
+ * Roamly — Customer Booking History & Feedback Controller
  * Pure Vanilla JavaScript DOM manipulation & Fetch API
  */
 

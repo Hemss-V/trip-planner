@@ -1,7 +1,7 @@
 /**
  * Local Tourism Package Booking System - HTTP Server
  * Built with pure Node.js (http, url, fs, path) - No Express
- * Member 2: Destinations & Tour Package Discovery Module
+ * Roamly - Tourism Platform Server
  */
 
 require('dotenv').config();
@@ -632,7 +632,7 @@ async function handleGetPackageById(req, res, packageId) {
 }
 
 // ==========================================
-// Member 3: Provider Portal & Package Admin
+// Provider Portal & Package Admin
 // ==========================================
 
 /**
@@ -1025,7 +1025,7 @@ async function handleDeletePackageAvailability(req, res, availabilityId) {
 
 // ==========================================
 // ==========================================
-// Member 2: Booking Engine, Payments, Coupons & Reviews
+// Booking Engine, Payments, Coupons & Reviews
 // ==========================================
 
 /**
@@ -1669,7 +1669,7 @@ const server = http.createServer(async (req, res) => {
   // REST API Routes
   if (pathname.startsWith('/api/')) {
     // Auth routes
-    // Member 2: Coupons & Discounts
+    // Coupons & Discounts
     if (pathname === '/api/coupons' && req.method === 'GET') {
       await handleGetCoupons(req, res);
       return;
@@ -1679,7 +1679,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // Member 2: Bookings & Reservations
+    // Bookings & Reservations
     if (pathname === '/api/bookings' && req.method === 'POST') {
       await handleCreateBooking(req, res);
       return;
@@ -1699,7 +1699,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // Member 2: Reviews & Ratings
+    // Reviews & Ratings
     if (pathname === '/api/reviews' && req.method === 'POST') {
       await handleCreateReview(req, res);
       return;
@@ -1714,7 +1714,7 @@ const server = http.createServer(async (req, res) => {
       await handleRegister(req, res);
       return;
     }
-    // Member 1: Authentication & sessions
+    // Authentication & sessions
     if (pathname === '/api/auth/login' && req.method === 'POST') {
       await member1.handleLogin(req, res);
       return;
@@ -1728,7 +1728,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // Member 1: Customer profile & addresses
+    // Customer profile & addresses
     if (pathname === '/api/customer/profile') {
       if (req.method === 'GET') { await member1.handleGetCustomerProfile(req, res); return; }
       if (req.method === 'PUT') { await member1.handleUpdateCustomerProfile(req, res); return; }
@@ -1743,13 +1743,13 @@ const server = http.createServer(async (req, res) => {
       if (req.method === 'DELETE') { await member1.handleDeleteAddress(req, res, parseInt(addressMatch[1], 10)); return; }
     }
 
-    // Member 1: Smart Budget-Based Package Finder
+    // Smart Budget-Based Package Finder
     if (pathname === '/api/packages/budget-finder' && req.method === 'POST') {
       await member1.handleBudgetFinder(req, res);
       return;
     }
 
-    // Provider Portal routes (Member 3)
+    // Provider Portal routes
     if (pathname === '/api/providers' && req.method === 'GET') {
       await handleGetProviders(req, res);
       return;
@@ -1852,7 +1852,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // Admin Portal routes (Member 3)
+    // Admin Portal routes
     if (pathname === '/api/admin/dashboard' && req.method === 'GET') {
       await member3.handleGetAdminDashboard(req, res);
       return;
@@ -1931,7 +1931,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // Super Admin Portal routes (Member 3)
+    // Super Admin Portal routes
     if (pathname === '/api/superadmin/admins') {
       if (req.method === 'GET') {
         await member3.handleGetSuperAdminAdmins(req, res);
@@ -1960,7 +1960,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // Customer Custom Itinerary Planner routes (Member 3)
+    // Customer Itinerary Planner routes
     if (pathname === '/api/customer/itineraries') {
       if (req.method === 'GET') {
         await member3.handleGetCustomerItineraries(req, res, parsedUrl);
@@ -2039,7 +2039,7 @@ const server = http.createServer(async (req, res) => {
     try {
       await member1.ensureMember1Schema();
     } catch (err) {
-      console.error('WARNING: Member 1 schema migration failed:', err.message);
+      console.error('WARNING: Schema migration failed:', err.message);
     }
   }
 
@@ -2047,7 +2047,7 @@ const server = http.createServer(async (req, res) => {
     console.log(`=======================================================`);
     console.log(` Roamly - Local Tourism Package Booking System Server `);
     console.log(` Running on: http://localhost:${PORT}`);
-    console.log(` Member 2: Destinations & Tour Package Discovery`);
+    console.log(` Roamly Tourism Platform — Ready`);
     console.log(`=======================================================`);
   });
 })();

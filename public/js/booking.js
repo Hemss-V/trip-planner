@@ -1,5 +1,5 @@
 /**
- * Roamly — Member 2: Customer Booking & Checkout Controller
+ * Roamly — Customer Booking & Checkout Controller
  * Pure Vanilla JavaScript DOM manipulation & Fetch API
  */
 

@@ -1,5 +1,5 @@
 /**
- * Roamly - Customer Profile & Address Management (Member 1)
+ * Roamly - Customer Profile & Address Management
  */
 (function () {
   const $ = (id) => document.getElementById(id);

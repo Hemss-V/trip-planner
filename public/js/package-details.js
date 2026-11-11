@@ -1,6 +1,6 @@
 /**
  * Roamly - Standalone Package Details Script
- * Member 2: Destinations, Tour Package Discovery, Bookings & Verified Reviews
+ * Destinations, Tour Package Discovery, Bookings & Verified Reviews
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <!-- Day-by-Day Itinerary -->
           ${itineraryHtml}
 
-          <!-- Verified Customer Reviews Section (Member 2) -->
+          <!-- Verified Customer Reviews Section -->
           <div id="package-reviews-container" style="margin-top: 3.5rem;">
             <!-- Populated via loadPackageReviews -->
           </div>
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
     `;
 
-    // Member 1: save / unsave this package to the customer's wishlist
+    // save / unsave this package to the customer's wishlist
     const saveBtn = document.getElementById('detail-save-btn');
     if (saveBtn) {
       saveBtn.addEventListener('click', () => {

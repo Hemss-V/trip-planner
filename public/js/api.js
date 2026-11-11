@@ -156,7 +156,7 @@ async function fetchPackageById(id) {
 }
 
 /* ==========================================================================
- * Member 1: Session, Auth & Dynamic Header
+ * Session, Auth & Dynamic Header
  * --------------------------------------------------------------------------
  * The server keeps the session in an HttpOnly cookie (roamly_session).
  * localStorage['roamly_user'] caches the public user profile so every page

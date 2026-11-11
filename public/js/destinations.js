@@ -1,6 +1,6 @@
 /**
  * Roamly - Destinations Page Script
- * Member 2: Destinations & Tour Package Discovery
+ * Destinations & Tour Package Discovery
  */
 
 document.addEventListener('DOMContentLoaded', async () => {

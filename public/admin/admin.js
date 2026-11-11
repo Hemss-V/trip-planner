@@ -1,5 +1,5 @@
 /**
- * Roamly — Member 3: Central Admin Console Controller
+ * Roamly — Central Admin Console Controller
  * Pure Vanilla JavaScript DOM manipulation & Fetch API
  */
 

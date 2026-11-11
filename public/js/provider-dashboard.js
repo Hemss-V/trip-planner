@@ -1,5 +1,5 @@
 /**
- * Roamly — Member 3: Enhanced Provider Portal Dashboard Controller
+ * Roamly — Provider Portal Dashboard Controller
  * Pure Vanilla JavaScript DOM manipulation & Fetch API
  */
 

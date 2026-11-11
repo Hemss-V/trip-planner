@@ -1,5 +1,5 @@
 /**
- * Member 1: Authentication, Customer Profile & Smart Budget Finder
+ * Authentication, Customer Profile & Smart Budget Finder
  *
  * - Unified login for all 4 roles with a signed, HttpOnly session cookie
  *   (the same token is also returned so clients may send it as a Bearer token).
@@ -791,7 +791,7 @@ async function handleBudgetFinder(req, res) {
 }
 
 // ==========================================
-// Schema migration for Member 1 tables
+// Schema migration for user/address tables
 // ==========================================
 
 /** Adds address_type / is_default to existing databases created before this module. */

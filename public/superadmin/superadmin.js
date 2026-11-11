@@ -1,5 +1,5 @@
 /**
- * Roamly — Member 3: Super Admin Portal Controller
+ * Roamly — Super Admin Portal Controller
  * Pure Vanilla JavaScript DOM manipulation & Fetch API
  */
 

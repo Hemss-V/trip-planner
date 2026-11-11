@@ -1,5 +1,5 @@
 /**
- * Roamly - Smart Budget-Based Package Finder (Member 1)
+ * Roamly - Smart Budget-Based Package Finder
  * Live-recalculates as inputs change and calls POST /api/packages/budget-finder.
  */
 (function () {

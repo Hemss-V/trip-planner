@@ -1,5 +1,5 @@
 /**
- * Roamly — Member 3: Personalized Itinerary Planner Controller
+ * Roamly — Personalized Itinerary Planner Controller
  * Pure Vanilla JavaScript DOM manipulation & Fetch API
  */
 

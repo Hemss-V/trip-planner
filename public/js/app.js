@@ -1,6 +1,6 @@
 /**
  * Roamly - Main Application Script (Homepage)
- * Member 2: Destinations & Tour Package Discovery
+ * Destinations & Tour Package Discovery
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -715,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <h4>Booking Module Handoff Notice</h4>
               <p>
                 You are ready to book <strong>${pkg.title}</strong> (ID: #${pkg.package_id}). 
-                This package discovery module successfully packages the selection. Booking and payment processing are handled by Member 3's module upon team integration.
+                This package discovery module successfully packages the selection. Booking and payment processing are handled by's module upon team integration.
               </p>
             </div>
           </div>

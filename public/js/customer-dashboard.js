@@ -1,5 +1,5 @@
 /**
- * Roamly - Customer Home Dashboard (Member 1)
+ * Roamly - Customer Home Dashboard
  * Welcome banner, travel stats, upcoming trips, saved packages, quick search.
  */
 (function () {
