@@ -13,13 +13,8 @@
   let maxSeatsForSelectedDate = 20;
   let travelerCount = 1;
   let appliedCoupon = null; // { code, discount_amount, final_amount, discount_type, discount_value }
-  let currentCustomerId = 3; // Default Aarav Sharma
-
-  // Customers metadata for quick switching
-  const CUSTOMER_PROFILES = {
-    '3': { name: 'Aarav Sharma', email: 'aarav@customer.in', phone: '9811122334' },
-    '4': { name: 'Priya Nair', email: 'priya@customer.in', phone: '9844455667' }
-  };
+  let currentCustomerId = null; // Set from session on load
+  let sessionUser = null;       // Full session user object
 
   // DOM Elements
   const el = {
@@ -144,19 +139,12 @@
    * Initialize Customer details
    */
   function initCustomerProfile() {
-    const profile = CUSTOMER_PROFILES[String(currentCustomerId)] || CUSTOMER_PROFILES['3'];
-    if (el.fullNameInput) el.fullNameInput.value = profile.name;
-    if (el.emailInput) el.emailInput.value = profile.email;
-    if (el.phoneInput) el.phoneInput.value = profile.phone;
-
-    if (el.customerSelect) {
-      el.customerSelect.value = String(currentCustomerId);
-      el.customerSelect.addEventListener('change', (e) => {
-        currentCustomerId = parseInt(e.target.value, 10);
-        initCustomerProfile();
-        showToast(`Switched active traveler to ${CUSTOMER_PROFILES[String(currentCustomerId)].name}`);
-      });
-    }
+    if (!sessionUser) return;
+    if (el.fullNameInput && !el.fullNameInput.value) el.fullNameInput.value = sessionUser.name || '';
+    if (el.emailInput && !el.emailInput.value) el.emailInput.value = sessionUser.email || '';
+    // Hide the demo customer-switcher if present (not needed with real session)
+    const switcherRow = el.customerSelect && el.customerSelect.closest('.form-group');
+    if (switcherRow) switcherRow.style.display = 'none';
   }
 
   /**
@@ -671,7 +659,14 @@
   /**
    * DOM Ready
    */
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Require CUSTOMER session — redirects to /login.html if not signed in
+    if (typeof RoamlySession !== 'undefined') {
+      sessionUser = await RoamlySession.requireRole('CUSTOMER');
+      if (!sessionUser) return; // redirect already triggered
+      currentCustomerId = sessionUser.user_id;
+    }
+
     initCustomerProfile();
     setupEventListeners();
 

@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  const currentAdminId = 5; // Anita Desai (Admin)
+  let currentAdminId = null; // Set from session on load
   let allAdminPackages = [];
   let currentPkgFilter = 'ALL';
   let currentRoleFilter = 'ALL';
@@ -733,7 +733,14 @@
     if (elements.catForm) elements.catForm.addEventListener('submit', handleCatFormSubmit);
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Require ADMIN or SUPER_ADMIN session
+    if (typeof RoamlySession !== 'undefined') {
+      const user = await RoamlySession.requireRole(['ADMIN', 'SUPER_ADMIN']);
+      if (!user) return; // redirect already triggered
+      currentAdminId = user.user_id;
+    }
+
     setupEventListeners();
     loadOverviewData();
   });

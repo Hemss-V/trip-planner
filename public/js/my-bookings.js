@@ -7,7 +7,7 @@
   'use strict';
 
   // State
-  let currentCustomerId = 3; // Default to Aarav Sharma
+  let currentCustomerId = null; // Set from session on load
   let allBookings = [];
   let currentFilter = 'all';
 
@@ -586,7 +586,18 @@
   /**
    * DOM Ready
    */
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Require CUSTOMER session — redirects to /login.html if not signed in
+    if (typeof RoamlySession !== 'undefined') {
+      const user = await RoamlySession.requireRole('CUSTOMER');
+      if (!user) return; // redirect already triggered
+      currentCustomerId = user.user_id;
+      // Hide demo customer-switcher if present
+      const switcherEl = document.getElementById('history-customer-select');
+      const switcherRow = switcherEl && switcherEl.closest('.form-group');
+      if (switcherRow) switcherRow.style.display = 'none';
+    }
+
     setupEventListeners();
     loadCustomerBookings(currentCustomerId);
   });

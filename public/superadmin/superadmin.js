@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  const superAdminId = 6; // Vikram Mehta
+  let superAdminId = null; // Set from session on load
   let allAdmins = [];
   let logActionFilter = 'ALL';
   let logSearchQuery = '';
@@ -372,7 +372,14 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Require SUPER_ADMIN session
+    if (typeof RoamlySession !== 'undefined') {
+      const user = await RoamlySession.requireRole('SUPER_ADMIN');
+      if (!user) return; // redirect already triggered
+      superAdminId = user.user_id;
+    }
+
     setupEventListeners();
     loadAdminsData();
   });

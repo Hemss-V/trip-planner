@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  let currentCustomerId = 3; // Aarav Sharma
+  let currentCustomerId = null; // Set from session on load
   let allDestinations = [];
   let allProviders = [];
   let currentEstimatedCost = 0;
@@ -156,19 +156,11 @@
     }, 3500);
   }
 
-  // Detect session user
-  function initUser() {
-    try {
-      const stored = localStorage.getItem('roamly_user');
-      if (stored) {
-        const u = JSON.parse(stored);
-        if (u && u.user_id) {
-          currentCustomerId = u.user_id;
-          if (elements.userDisplay) elements.userDisplay.textContent = u.name;
-        }
-      }
-    } catch (e) {
-      // ignore
+  // Detect session user via RoamlySession (set by api.js)
+  function initUser(user) {
+    if (user && user.user_id) {
+      currentCustomerId = user.user_id;
+      if (elements.userDisplay) elements.userDisplay.textContent = user.name || 'Traveler';
     }
   }
 
@@ -631,7 +623,14 @@
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
-    initUser();
+    // Require CUSTOMER session — redirects to /login.html if not signed in
+    let user = null;
+    if (typeof RoamlySession !== 'undefined') {
+      user = await RoamlySession.requireRole('CUSTOMER');
+      if (!user) return; // redirect already triggered
+    }
+
+    initUser(user);
     setupEventListeners();
     await loadMetadata();
   });

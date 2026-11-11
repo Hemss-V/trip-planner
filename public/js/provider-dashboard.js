@@ -7,7 +7,7 @@
   'use strict';
 
   // State
-  let currentProviderId = 1;
+  let currentProviderId = null; // Set from session on load
   let allPackages = [];
   let allDestinations = [];
   let allCategories = [];
@@ -173,21 +173,25 @@
     }, 3500);
   }
 
-  function initCurrentProvider() {
+  function initCurrentProvider(sessionUser) {
+    // Super admin / admin can pass ?provider_id= in URL to view any provider
     const urlParams = new URLSearchParams(window.location.search);
     const qProvider = urlParams.get('provider_id');
     if (qProvider && !isNaN(parseInt(qProvider, 10))) {
       currentProviderId = parseInt(qProvider, 10);
-      localStorage.setItem('roamly_provider_id', currentProviderId);
       return;
     }
-
-    const savedProviderId = localStorage.getItem('roamly_provider_id');
-    if (savedProviderId && !isNaN(parseInt(savedProviderId, 10))) {
-      currentProviderId = parseInt(savedProviderId, 10);
+    // Use the signed-in provider's own ID
+    if (sessionUser && sessionUser.user_id) {
+      currentProviderId = sessionUser.user_id;
       return;
     }
-
+    // Fallback: check localStorage (set by RoamlySession on login)
+    const saved = localStorage.getItem('roamly_provider_id');
+    if (saved && !isNaN(parseInt(saved, 10))) {
+      currentProviderId = parseInt(saved, 10);
+      return;
+    }
     currentProviderId = 1;
   }
 
@@ -1160,7 +1164,14 @@
 
   // Initialize
   document.addEventListener('DOMContentLoaded', async () => {
-    initCurrentProvider();
+    // Require PROVIDER session — redirects to /login.html if not signed in
+    let sessionUser = null;
+    if (typeof RoamlySession !== 'undefined') {
+      sessionUser = await RoamlySession.requireRole(['PROVIDER', 'ADMIN', 'SUPER_ADMIN']);
+      if (!sessionUser) return; // redirect already triggered
+    }
+
+    initCurrentProvider(sessionUser);
     setupEventListeners();
     await loadProvidersList();
     await loadFormMetadata();
